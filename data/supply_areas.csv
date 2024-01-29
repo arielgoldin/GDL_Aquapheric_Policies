@@ -1,0 +1,12 @@
+﻿id,ID,supply_area,year,population,service_intakes,industry_intakes,public_intakes,RFC_area,area,private_intakes,DATASOURCE,COMMENTS
+0,AMG-ZS-01,PP1 - Chapala,2020,"1,581,298","48,064","2,208","2,286","45,178,200","198,398,000","445,436",Información comercial de SIAPA (2022) e índice de hacinamiento de INEGI (2020),
+1,AMG-ZS-02,PP2 - Chapala,2020,"445,333","8,051",281,426,"14,009,900","58,678,900","125,446",Información comercial de SIAPA (2022) e índice de hacinamiento de INEGI (2020),
+2,AMG-ZS-03,PP3 - Calderón - Colomos,2020,"521,964","14,887",385,747,"16,432,000","65,619,300","147,032",Información comercial de SIAPA (2022) e índice de hacinamiento de INEGI (2020),
+3,AMG-ZS-04,PP4 -Toluquilla,2020,"457,460","9,412",210,454,"10,430,600","71,272,700","128,862",Información comercial de SIAPA (2022) e índice de hacinamiento de INEGI (2020),
+4,AMG-ZS-05,Pozos y manantiales,2020,"708,626","11,910",263,842,"14,087,700","113,592,774","199,613",Información comercial de SIAPA (2022) e índice de hacinamiento de INEGI (2020),
+0,AMG-ZS-01,PP1 - Chapala,2050,"1,862,912","56,908","2,573","2,482","45,178,200","198,398,000","524,764",Elaboración propia con metodología de SIAPA (2014),
+1,AMG-ZS-02,PP2 - Chapala,2050,"524,644","9,533",328,463,"14,009,900","58,678,900","147,787",Elaboración propia con metodología de SIAPA (2014),
+2,AMG-ZS-03,PP3 - Calderón - Colomos,2050,"614,920","17,626",449,811,"16,432,000","65,619,300","173,217",Elaboración propia con metodología de SIAPA (2014),
+3,AMG-ZS-04,PP4 -Toluquilla,2050,"538,929","11,144",245,493,"10,430,600","71,272,700","151,811",Elaboración propia con metodología de SIAPA (2014),
+4,AMG-ZS-05,Pozos y manantiales,2050,"834,825","14,102",307,914,"14,087,700","113,592,774","235,162",Elaboración propia con metodología de SIAPA (2014),
+,,,,,,,,,,,,
