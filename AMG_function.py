@@ -24,15 +24,7 @@ def AMG_model(private_intakes_1=445436, private_intakes_2=125446, private_intake
         
         #1. DEMAND
 
-        #1.1 Rainfall capture
-        conversion_m3s = 30.4 * 24 * 60 / 1000 #converts mm/month to m/s
-        rfh_1_flow = (rfh_proportion_1 * private_intakes_1) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
-        rfh_2_flow = (rfh_proportion_2 * private_intakes_2) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
-        rfh_3_flow = (rfh_proportion_3 * private_intakes_3) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
-        rfh_4_flow = (rfh_proportion_4 * private_intakes_4) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
-        rfh_5_flow = (rfh_proportion_5 * private_intakes_5) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
-
-        #1.2 Household demand
+        #1.1 Household demand
         conversion_m3s = 1/(24*60*60*1000) #converts l/day into m3/s
         demand1 = private_intakes_1 * crowding_factor * public_consumption * conversion_m3s
         demand2 = private_intakes_2 * crowding_factor * public_consumption * conversion_m3s
@@ -58,17 +50,29 @@ def AMG_model(private_intakes_1=445436, private_intakes_2=125446, private_intake
         supplied_demand_4 = supply_4/demand4
         supplied_demand_5 = supply_5/demand5
 
+        #dumb objective func because numpy gives error here
+        min_supplied_demand = supplied_demand_4
+        
+        #can't get numpy to work here
+        #min_supplied_demand = np.min([supplied_demand_1,supplied_demand_2,supplied_demand_3, supplied_demand_4, supplied_demand_5])
 
 
-        return {"Total demand":total_demand, "Total supply": total_supply, "supplied_demand_1": supplied_demand_1,"supplied_demand_2": supplied_demand_2,"supplied_demand_3": supplied_demand_3,"supplied_demand_4": supplied_demand_4,"supplied_demand_5": supplied_demand_5}
+
+        return {"Total demand":total_demand, "Total supply": total_supply, "supplied_demand_1": supplied_demand_1,"supplied_demand_2": supplied_demand_2,
+                "supplied_demand_3": supplied_demand_3,"supplied_demand_4": supplied_demand_4,"supplied_demand_5": supplied_demand_5
+                "min_supplied_demand":min_supplied_demand}
 
 
-'''print({"Supplied demand SA1 =": supplied_demand_1,"Supplied demand SA2 =": supplied_demand_2,"Supplied demand SA3 =": supplied_demand_3,"Supplied demand SA4 =": supplied_demand_4,"Supplied demand SA5 =": supplied_demand_5}
-)'''
 
 def get_MFC_flows():
         return demand1, demand2, demand3, demand4, demand5, mfc_flow_1, mfc_flow_2, mfc_flow_3, mfc_flow_4, mfc_flow_5
 
+
+
+
+
+'''print({"Supplied demand SA1 =": supplied_demand_1,"Supplied demand SA2 =": supplied_demand_2,"Supplied demand SA3 =": supplied_demand_3,"Supplied demand SA4 =": supplied_demand_4,"Supplied demand SA5 =": supplied_demand_5}
+)'''
 
 '''              ,cost_loss_a = 500 #million per percentage
               ,cost_loss_b = 50 #million
@@ -79,3 +83,11 @@ def get_MFC_flows():
               ,reduction_loss_potabilisation = 0
                             ,rfh_houses_1 = 0, rfh_houses_2 = 0, rfh_houses_3 = 0, rfh_houses_4 = 0
                             ,water_reuse = 0'''
+
+'''#1.1 Rainfall capture
+conversion_m3s = 30.4 * 24 * 60 / 1000 #converts mm/month to m/s
+rfh_1_flow = (rfh_proportion_1 * private_intakes_1) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
+rfh_2_flow = (rfh_proportion_2 * private_intakes_2) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
+rfh_3_flow = (rfh_proportion_3 * private_intakes_3) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
+rfh_4_flow = (rfh_proportion_4 * private_intakes_4) * average_household_area * harvest_coeficient * rainfall * conversion_m3s
+rfh_5_flow = (rfh_proportion_5 * private_intakes_5) * average_household_area * harvest_coeficient * rainfall * conversion_m3s'''
