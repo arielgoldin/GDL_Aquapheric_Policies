@@ -10,10 +10,30 @@ from platypus import EpsNSGAII, ProcessPoolEvaluator
 supplied_areas=pd.read_csv("data/supplied_areas.csv")
 '''
 
+def demand (population, ZA, domestic_consumption):
+      conversion_m3s = 1/(24*60*60*1000) #converts l/day into m3/s
+      demand_value = population[f"population_{ZA}"] * domestic_consumption * conversion_m3s
+
+      return demand_value
+
+
 def supplied_demand (outcomes, ZA):
     supplied_demand_value = outcomes[f"supplied_{ZA}"] / outcomes[f"demand_{ZA}"]
 
     return supplied_demand_value
+
+
+def supply_percapita (outcomes, population, ZA):
+    supply_percapita_value = outcomes[f"supplied_{ZA}"] / population[f"population_{ZA}"]
+
+    return supply_percapita_value
+
+
+def supplied_demand_deficit (outcomes, ZA):
+      supplied_demand_deficit_value = abs(outcomes[f"supplied_demand_{ZA}"] - 1)
+
+      return supplied_demand_deficit_value
+
 
 def sq_deficit (outcomes, ZA):
       sq_deficit_value = (outcomes[f"supplied_{ZA}"] - outcomes[f"demand_{ZA}"])**2
@@ -21,63 +41,53 @@ def sq_deficit (outcomes, ZA):
       return sq_deficit_value
 
 
-def AMG_model(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446, domestic_intakes_PP3=147032, domestic_intakes_Toluquilla=128862, domestic_intakes_Pozos=199613
+def AMG_model_function(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446, domestic_intakes_PP3=147032, domestic_intakes_Toluquilla=128862, domestic_intakes_Pozos=199613
               ,domestic_consumption=127 #l/day/inhabitant
               ,crowding_factor = 3.55 #people per household
               ,chapala_flow = 6.9, calderon_flow = 1, zapotillo_flow = 1, pozos_flow = 2.3, toluquilla_flow = 0.5
               ,chapalaPP1_to_chapalaPP2 = 0.19 #Proportion of water that is sent from the supplied line of PP1 to PP2
               ,loss_grid = 0.35 # in %
               ,loss_potabilisation = 0.07 # losses in potabilization and transport in %
-              ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0
-              ,rainfall = 80 #mm/month
-              ,harvest_coeficient = 0.75 #proportion of water that falls on rooftop that can be harvested
-              ,average_household_area = 80 #m2 
-              ,rfh_proportion_PP1 = 0.1, rfh_proportion_PP2 = 0.3, rfh_proportion_PP3 = 1.1, rfh_proportion_Toluquilla = 0.3, rfh_proportion_Pozos = 0.1 #proportion of the houses that have rfc /100 
-              ):
+              ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0):
         
 
         ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
         model_vars = ["demand", "delivered", "potabilized", "supplied"]
-        
+        rounding_outcomes = 5
+        rounding_levers = 3
 
-
-
-        
         
         #1. DEMAND
+        population_PP1 = domestic_intakes_PP1 * crowding_factor
+        population_PP2 = domestic_intakes_PP2 * crowding_factor
+        population_PP3 = domestic_intakes_PP3 * crowding_factor
+        population_Toluquilla = domestic_intakes_Toluquilla * crowding_factor
+        population_Pozos = domestic_intakes_Pozos * crowding_factor
+
+        population_dict = {"population_PP1":population_PP1, "population_PP2":population_PP2, "population_PP3":population_PP3, "population_Toluquilla":population_Toluquilla, "population_Pozos":population_Pozos}
+
 
         #1.1 Household demand
-        conversion_m3s = 1/(24*60*60*1000) #converts l/day into m3/s
+        demand_outputs = {f"demand_{ZA}":np.round(demand(population_dict, ZA, domestic_consumption),rounding_outcomes) for ZA in ZA_names}
 
-        demand_PP1 = domestic_intakes_PP1 * crowding_factor * domestic_consumption * conversion_m3s
-        demand_PP2 = domestic_intakes_PP2 * crowding_factor * domestic_consumption * conversion_m3s
-        demand_PP3 = domestic_intakes_PP3 * crowding_factor * domestic_consumption * conversion_m3s
-        demand_Toluquilla = domestic_intakes_Toluquilla * crowding_factor * domestic_consumption * conversion_m3s
-        demand_Pozos = domestic_intakes_Pozos * crowding_factor * domestic_consumption * conversion_m3s
-
-        total_demand = demand_PP1 + demand_PP2 + demand_PP3 + demand_Toluquilla + demand_Pozos
-
-        demand_outputs = {"demand_PP1": demand_PP1,"demand_PP2": demand_PP2,"demand_PP3": demand_PP3,"demand_Toluquilla": demand_Toluquilla,"demand_Pozos": demand_Pozos}
-        #demand_outputs = {f"demand_{ZA}": globals()[f"demand_{ZA}"] for ZA in ZA_names} #!add total demand later
-
+        total_demand = sum(demand_outputs.values())
         
 
         #2. EXTRACTION
         total_extraction = chapala_flow + calderon_flow + toluquilla_flow + pozos_flow
 
-        #DELIVERED
-        delivered_PP1 = chapala_flow * (1-chapalaPP1_to_chapalaPP2)
+        #DELIVERED - water delivered to each potabilization plant
+        delivered_PP1 = chapala_flow * (1-chapalaPP1_to_chapalaPP2) #PP1 and PP2 both receive water from Chapala and distribute it
         delivered_PP2 = chapala_flow * chapalaPP1_to_chapalaPP2
-        delivered_PP3 = calderon_flow + zapotillo_flow
+        delivered_PP3 = calderon_flow + zapotillo_flow #Calderon and Chapala flow towards the PP3
         delivered_Pozos = pozos_flow
         delivered_Toluquilla = toluquilla_flow
 
         delivered_outputs = {"delivered_PP1": delivered_PP1,"delivered_PP2": delivered_PP2,"delivered_PP3": delivered_PP3,"delivered_Toluquilla": delivered_Toluquilla,"delivered_Pozos": delivered_Pozos}
         
-        
       
         
-        #2. Water potabilized in each supplied area OF WATER AND ITS DISTRIBUTION TO THE supplied AREAS
+        #2. Water potabilized in each supplied area 
         potabilized_PP1 = (delivered_PP1 * (1-loss_potabilisation))
         potabilized_PP2 = (delivered_PP2* (1-loss_potabilisation))
         potabilized_PP3 = (delivered_PP3* (1-loss_potabilisation))
@@ -95,7 +105,7 @@ def AMG_model(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446, domestic
 
         additional_flow_outputs = {"additional_flow_PP1": additional_flow_PP1,"additional_flow_PP2": additional_flow_PP2,"additional_flow_PP3": additional_flow_PP3,"additional_flow_Toluquilla": additional_flow_Toluquilla,"additional_flow_Pozos": additional_flow_Pozos}
         
-        #supplied TO USERS IN THE supplied AREAS
+        #SUPPLIED to users in each area - losses are considered after the aquapheric flows
         supplied_PP1 = (potabilized_PP1 + aqp4_Toluquilla_to_PP1 + additional_flow_PP1) * (1-loss_grid)
         supplied_PP2 = (potabilized_PP2 - aqp1_PP2_to_PP3 + additional_flow_PP2) * (1-loss_grid)
         supplied_PP3 = (potabilized_PP3 + (aqp1_PP2_to_PP3 - aqp2_PP3_to_Pozos) + additional_flow_PP3) * (1-loss_grid)
@@ -114,12 +124,19 @@ def AMG_model(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446, domestic
         #3.1 Individual
         
         #3.1.1 Supplied demand
-        supplied_demand_outcomes = {f"supplied_demand_{ZA}":np.round(supplied_demand(model_outputs,ZA),4) for ZA in ZA_names}
+        supplied_demand_outcomes = {f"supplied_demand_{ZA}":np.round(supplied_demand(model_outputs,ZA),rounding_outcomes) for ZA in ZA_names}
 
-        #3.1.2 Deficit sq
-        deficit_sq_outcomes = {f"deficit_sq_{ZA}":np.round(sq_deficit(model_outputs,ZA),4) for ZA in ZA_names}
+        supplied_demand_deficit_outcomes = {f"supplied_demand_deficit_{ZA}":supplied_demand_deficit(supplied_demand_outcomes,ZA) for ZA in ZA_names}
 
-        individual_outcomes = {**supplied_demand_outcomes, **deficit_sq_outcomes}
+        #3.1.2 Demand per ca´pita
+        supply_percapita_outcomes = {f"supply_percapita_{ZA}":np.round(supply_percapita(model_outputs,population_dict, ZA),rounding_outcomes) for ZA in ZA_names}
+
+        #3.1.3 Deficit sq
+        deficit_sq_outcomes = {f"deficit_sq_{ZA}":np.round(sq_deficit(model_outputs,ZA),rounding_outcomes) for ZA in ZA_names}
+
+
+
+        individual_outcomes = {**supplied_demand_outcomes, **supplied_demand_deficit_outcomes, **supply_percapita_outcomes}
 
         #3.2 Agreggated
 
