@@ -9,9 +9,10 @@ from platypus import EpsNSGAII, ProcessPoolEvaluator
 
 supplied_areas=pd.read_csv("data/supplied_areas.csv")
 '''
+conversion_m3s = 1/(24*60*60*1000) #converts l/day into m3/s
 
 def demand (population, ZA, domestic_consumption):
-      conversion_m3s = 1/(24*60*60*1000) #converts l/day into m3/s
+      
       demand_value = population[f"population_{ZA}"] * domestic_consumption * conversion_m3s
 
       return demand_value
@@ -24,7 +25,7 @@ def supplied_demand (outcomes, ZA):
 
 
 def supply_percapita (outcomes, population, ZA):
-    supply_percapita_value = outcomes[f"supplied_{ZA}"] / population[f"population_{ZA}"]
+    supply_percapita_value = outcomes[f"supplied_{ZA}"] / population[f"population_{ZA}"] / conversion_m3s
 
     return supply_percapita_value
 
@@ -48,13 +49,13 @@ def AMG_model_function(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446,
               ,chapalaPP1_to_chapalaPP2 = 0.19 #Proportion of water that is sent from the supplied line of PP1 to PP2
               ,loss_grid = 0.35 # in %
               ,loss_potabilisation = 0.07 # losses in potabilization and transport in %
-              ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0):
+              ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0,
+              rounding_outcomes = 5, rounding_levers = 4):
         
 
         ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
         model_vars = ["demand", "delivered", "potabilized", "supplied"]
-        rounding_outcomes = 5
-        rounding_levers = 3
+        
 
         
         #1. DEMAND
@@ -129,7 +130,7 @@ def AMG_model_function(domestic_intakes_PP1=445436, domestic_intakes_PP2=125446,
         supplied_demand_deficit_outcomes = {f"supplied_demand_deficit_{ZA}":supplied_demand_deficit(supplied_demand_outcomes,ZA) for ZA in ZA_names}
 
         #3.1.2 Demand per ca´pita
-        supply_percapita_outcomes = {f"supply_percapita_{ZA}":np.round(supply_percapita(model_outputs,population_dict, ZA),rounding_outcomes) for ZA in ZA_names}
+        supply_percapita_outcomes = {f"supply_percapita_{ZA}":np.round(supply_percapita(model_outputs,population_dict, ZA),0) for ZA in ZA_names}
 
         #3.1.3 Deficit sq
         deficit_sq_outcomes = {f"deficit_sq_{ZA}":np.round(sq_deficit(model_outputs,ZA),rounding_outcomes) for ZA in ZA_names}
