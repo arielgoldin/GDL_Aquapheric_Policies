@@ -35,11 +35,6 @@ def supplied_demand_deficit (outcomes, ZA):
 
       return supplied_demand_deficit_value
 
-
-def sq_deficit (outcomes, ZA):
-      sq_deficit_value = (outcomes[f"supplied_{ZA}"] - outcomes[f"demand_{ZA}"])**2
-
-      return sq_deficit_value
  
 
 def AMG_model_function(crowding_factor = 3.55 #people per household
@@ -49,7 +44,10 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
                        ,loss_potabilisation = 0.07 # losses in potabilization and transport in %
                        ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0
                        ,rounding_outcomes = 5, rounding_levers = 2,
-                       equity_indicator="supplied_demand", equity_calc = "GINI"):
+                       equity_indicator="supplied_demand", equity_calc = "GINI"
+                       ,scenario=""
+                       ,sufficientarian_thresholds=[128,100,50]
+                       ):
         
 
         ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
@@ -68,9 +66,8 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
                                                   input_data_dict[f"service_intakes_{ZA}"] * input_data_dict["service_consumption"] + 
                                                   input_data_dict[f"industry_intakes_{ZA}"] * input_data_dict["industry_consumption"] + 
                                                   input_data_dict[f"public_intakes_{ZA}"] * input_data_dict["public_consumption"])
-                                                  
                                                   *conversion_m3s, rounding_outcomes) 
-                                          for ZA in ZA_names}
+                                                  for ZA in ZA_names}
                                           
 
 
@@ -123,17 +120,17 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
         supplied_PP3 = (potabilized_PP3 + additional_flow_PP3 + aqp_flow_PP3) * (1-loss_grid)
         supplied_Toluquilla = (potabilized_Toluquilla + additional_flow_Toluquilla + aqp_flow_Toluquilla) * (1-loss_grid)
         supplied_Pozos = (potabilized_Pozos + additional_flow_Pozos + aqp_flow_Pozos) * (1-loss_grid)
-
-        supplied_outputs = {"supplied_PP1": supplied_PP1,"supplied_PP2": supplied_PP2,"supplied_PP3": supplied_PP3,"supplied_Toluquilla": supplied_Toluquilla,"supplied_Pozos": supplied_Pozos}
-
         total_supplied = supplied_PP1 + supplied_PP2 + supplied_PP3 + supplied_Toluquilla + supplied_Pozos
+
+        supplied_outputs = {"supplied_PP1": supplied_PP1,"supplied_PP2": supplied_PP2,"supplied_PP3": supplied_PP3,"supplied_Toluquilla": supplied_Toluquilla,"supplied_Pozos": supplied_Pozos, "total_supplied": total_supplied}
+
 
         model_outputs = {**supplied_outputs, **demand_outputs, **delivered_outputs} #is this necesary?
 
 
         #3. OBJECTIVE FUNCITONS
 
-        #3.1 Individual
+        #3.1 Individual performance objectives
         
         #3.1.1 Supplied demand
         supplied_demand_outcomes = {f"supplied_demand_{ZA}":np.round(supplied_demand(model_outputs,ZA),rounding_outcomes) for ZA in ZA_names}
@@ -142,19 +139,15 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
 
         #3.1.2 Demand per ca´pita
         supply_percapita_outcomes = {f"supply_percapita_{ZA}":np.round(supply_percapita(model_outputs,population_dict, ZA),0) for ZA in ZA_names}
-
-        #3.1.3 Deficit sq
-        deficit_sq_outcomes = {f"deficit_sq_{ZA}":np.round(sq_deficit(model_outputs,ZA),rounding_outcomes) for ZA in ZA_names}
-
+        
 
 
         individual_outcomes = {**supplied_demand_outcomes, **supplied_demand_deficit_outcomes, **supply_percapita_outcomes}
 
-        #3.2 Agreggated
+        #3.2 Justice Objectives
         min_supplied_demand = min(supplied_demand_outcomes.values())
-        min_deficit_sq = min(deficit_sq_outcomes.values())
 
-        #3.2.2 GINI
+        #3.2.2 Egalitarian
         if equity_calc == "GINI":
               if equity_indicator == "supply_percapita": objectives = list(supply_percapita_outcomes.values())
               elif equity_indicator == "supplied_demand": objectives = list(supplied_demand_outcomes.values())
@@ -164,13 +157,26 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
               # 1 - ... needed so that all principles have a maximization direction
               equity_result = (np.sum(diffs) / (2.0 * n * np.sum(sorted_objectives)))
 
+        #3.2.3 Sufficientarian
+
+        ZAs_below_threshold_1 = len([x for x in supply_percapita_outcomes.values() if x< sufficientarian_thresholds[0]])
+        ZAs_below_threshold_2 = len([x for x in supply_percapita_outcomes.values() if x< sufficientarian_thresholds[1]])
+        ZAs_below_threshold_3 = len([x for x in supply_percapita_outcomes.values() if x< sufficientarian_thresholds[2]])
 
 
-        aggregated_outcomes = {"min_supplied_demand":min_supplied_demand, "min_deficit_sq":min_deficit_sq, f"{equity_indicator}_{equity_calc}":equity_result}
+
+        aggregated_outcomes = {"min_supplied_demand":min_supplied_demand, 
+                               f"{equity_indicator}_{equity_calc}":equity_result,
+                               f"ZAs_below_{sufficientarian_thresholds[0]}":ZAs_below_threshold_1,
+                               f"ZAs_below_{sufficientarian_thresholds[1]}":ZAs_below_threshold_2,
+                               f"ZAs_below_{sufficientarian_thresholds[2]}":ZAs_below_threshold_3}
+
+        #info outputs
+        info_outcomes = {"scenario":scenario} #not sure if this should be an output
 
         
       
-        return {**delivered_outputs, **model_outputs, **individual_outcomes, **aggregated_outcomes}
+        return {**delivered_outputs, **model_outputs, **individual_outcomes, **aggregated_outcomes, **info_outcomes}
 
 
 
