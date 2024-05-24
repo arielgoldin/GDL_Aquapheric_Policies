@@ -31,6 +31,5 @@ def full_dataframe (df, function=AMG_model_function, experiment_name="",scenario
     results_df["experiment"]=experiment_name
 
 
-    results_df.to_csv(f"experiment_results/{experiment_name}.csv", index=False)
 
     return results_df

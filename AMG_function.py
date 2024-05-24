@@ -35,6 +35,16 @@ def supplied_demand_deficit (outcomes, ZA):
 
       return supplied_demand_deficit_value
 
+def GINI (outcomes):
+      objectives = list(outcomes.values())
+      n = len(objectives)
+      sorted_objectives = np.sort(objectives)
+      diffs = np.abs(np.subtract.outer(sorted_objectives, sorted_objectives)).flatten()
+      # 1 - ... needed so that all principles have a maximization direction
+      GINI_value = (np.sum(diffs) / (2.0 * n * np.sum(sorted_objectives)))
+
+      return GINI_value
+
  
 
 def AMG_model_function(crowding_factor = 3.55 #people per household
@@ -43,8 +53,7 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
                        ,loss_grid = 0.35 # in %
                        ,loss_potabilisation = 0.07 # losses in potabilization and transport in %
                        ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0
-                       ,rounding_outcomes = 5, rounding_levers = 2,
-                       equity_indicator="supplied_demand", equity_calc = "GINI"
+                       ,rounding_outcomes = 5, rounding_levers = 2
                        ,scenario=""
                        ,sufficientarian_thresholds=[128,100,50]
                        ):
@@ -147,15 +156,14 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
         #3.2 Justice Objectives
         min_supplied_demand = min(supplied_demand_outcomes.values())
 
+        #3.2.1 Utilitarian
+        supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
+        supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))
+        average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"]*population_dict[f"population_{ZA}"] for ZA in ZA_names])//np.sum(list(population_dict.values()))
+
         #3.2.2 Egalitarian
-        if equity_calc == "GINI":
-              if equity_indicator == "supply_percapita": objectives = list(supply_percapita_outcomes.values())
-              elif equity_indicator == "supplied_demand": objectives = list(supplied_demand_outcomes.values())
-              n = len(objectives)
-              sorted_objectives = np.sort(objectives)
-              diffs = np.abs(np.subtract.outer(sorted_objectives, sorted_objectives)).flatten()
-              # 1 - ... needed so that all principles have a maximization direction
-              equity_result = (np.sum(diffs) / (2.0 * n * np.sum(sorted_objectives)))
+        supply_percapita_GINI = GINI(supply_percapita_outcomes)
+        supplied_demand_GINI = GINI(supplied_demand_outcomes)
 
         #3.2.3 Sufficientarian
 
@@ -163,13 +171,16 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
         ZAs_below_threshold_2 = len([x for x in supply_percapita_outcomes.values() if x< sufficientarian_thresholds[1]])
         ZAs_below_threshold_3 = len([x for x in supply_percapita_outcomes.values() if x< sufficientarian_thresholds[2]])
 
-
-
-        aggregated_outcomes = {"min_supplied_demand":min_supplied_demand, 
-                               f"{equity_indicator}_{equity_calc}":equity_result,
-                               f"ZAs_below_{sufficientarian_thresholds[0]}":ZAs_below_threshold_1,
-                               f"ZAs_below_{sufficientarian_thresholds[1]}":ZAs_below_threshold_2,
-                               f"ZAs_below_{sufficientarian_thresholds[2]}":ZAs_below_threshold_3}
+        
+        aggregated_outcomes = {"supplied_demand_average" : supplied_demand_average,
+                               "supply_percapita_average": supply_percapita_average,
+                               "min_supplied_demand" : min_supplied_demand, 
+                               "supply_percapita_GINI" : supply_percapita_GINI,
+                               "supplied_demand_GINI": supplied_demand_GINI,
+                               "average_supply_percapita": average_supply_percapita,
+                               f"ZAs_below_{sufficientarian_thresholds[0]}" : ZAs_below_threshold_1,
+                               f"ZAs_below_{sufficientarian_thresholds[1]}" : ZAs_below_threshold_2,
+                               f"ZAs_below_{sufficientarian_thresholds[2]}" : ZAs_below_threshold_3}
 
         #info outputs
         info_outcomes = {"scenario":scenario} #not sure if this should be an output
