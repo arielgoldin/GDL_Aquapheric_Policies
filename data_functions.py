@@ -4,7 +4,7 @@ from AMG_function import AMG_model_function
 def full_dataframe (df, function=AMG_model_function, experiment_name="",scenarios_in_dataframe=False, scenario={}):
     #define the names of the columns that could be used as arguments for the funciton
     aqp_segments = ["aqp4_Toluquilla_to_PP1", "aqp1_PP2_to_PP3", "aqp2_PP3_to_Pozos", "aqp3_Pozos_to_Toluquilla"]
-    flows = ["chapala_flow", "calderon_flow", "zapotillo_flow", "pozos_flow", "toluquilla_flow","scenario"]
+    flows = ["chapala_flow", "calderon_lared_flow", "pozos_flow", "toluquilla_flow","scenario"]
     
     #defining what arguments we need to keep on the dataframe that we will input to the function
     if scenarios_in_dataframe == True: 
@@ -31,5 +31,6 @@ def full_dataframe (df, function=AMG_model_function, experiment_name="",scenario
     results_df["experiment"]=experiment_name
 
 
+    results_df.to_csv(f"experiment_results/{experiment_name}.csv", index=False)
 
     return results_df

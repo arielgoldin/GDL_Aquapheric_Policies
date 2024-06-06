@@ -1,9 +1,8 @@
 import math
 import numpy as np
 import pandas as pd
-#import rbf_functions
 from platypus import EpsNSGAII, ProcessPoolEvaluator
-#import rbf_functions
+
 
 '''import sysdomestic_intakes_PP1
 
@@ -48,14 +47,14 @@ def GINI (outcomes):
  
 
 def AMG_model_function(crowding_factor = 3.55 #people per household
-                       ,chapala_flow = 6.9, calderon_flow = 1, zapotillo_flow = 1, pozos_flow = 2.3, toluquilla_flow = 0.5
+                       ,chapala_flow = 6.9, calderon_lared_flow = 1, pozos_flow = 2.3, toluquilla_flow = 0.5
                        ,chapalaPP1_to_chapalaPP2 = 0.19 #Proportion of water that is sent from the supplied line of PP1 to PP2
                        ,loss_grid = 0.35 # in %
                        ,loss_potabilisation = 0.07 # losses in potabilization and transport in %
                        ,aqp4_Toluquilla_to_PP1 = 0, aqp1_PP2_to_PP3 = 0, aqp2_PP3_to_Pozos = 0, aqp3_Pozos_to_Toluquilla = 0
-                       ,rounding_outcomes = 5, rounding_levers = 2
+                       ,rounding_outcomes = 3, rounding_levers = 2
                        ,scenario=""
-                       ,sufficientarian_thresholds=[128,100,50]
+                       ,sufficientarian_thresholds=[142,100,50]
                        ):
         
 
@@ -87,12 +86,12 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
         
 
         #2. EXTRACTION
-        total_extraction = chapala_flow + calderon_flow + toluquilla_flow + pozos_flow
+        total_extraction = chapala_flow + calderon_lared_flow + toluquilla_flow + pozos_flow
 
         #DELIVERED - water delivered to each potabilization plant
         delivered_PP1 = chapala_flow * (1-chapalaPP1_to_chapalaPP2) #PP1 and PP2 both receive water from Chapala and distribute it
         delivered_PP2 = chapala_flow * chapalaPP1_to_chapalaPP2
-        delivered_PP3 = calderon_flow + zapotillo_flow #Calderon and Chapala flow towards the PP3
+        delivered_PP3 = calderon_lared_flow
         delivered_Pozos = pozos_flow
         delivered_Toluquilla = toluquilla_flow
 
@@ -146,10 +145,8 @@ def AMG_model_function(crowding_factor = 3.55 #people per household
 
         supplied_demand_deficit_outcomes = {f"supplied_demand_deficit_{ZA}":supplied_demand_deficit(supplied_demand_outcomes,ZA) for ZA in ZA_names}
 
-        #3.1.2 Demand per ca´pita
+        #3.1.2 Supply per capita
         supply_percapita_outcomes = {f"supply_percapita_{ZA}":np.round(supply_percapita(model_outputs,population_dict, ZA),0) for ZA in ZA_names}
-        
-
 
         individual_outcomes = {**supplied_demand_outcomes, **supplied_demand_deficit_outcomes, **supply_percapita_outcomes}
 

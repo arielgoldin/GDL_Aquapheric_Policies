@@ -93,58 +93,49 @@ def plot_parallel_axis(dataframe, title, y_axis, hue_variable, hue_label):
     plt.show()
     return 
 
-def plot_parallel_axis_categorical_hue(dataframe, title, y_axis, hue_variable, hue_label):
+def plot_colored_parallel_axis(light_grey_data, colored_data, color):
     """
-    Plot parallel axis plot with a categorical hue variable.
+    Plot parallel axis plot with lines colored based on a separate DataFrame.
 
     Parameters:
-        dataframe (pd.DataFrame): Input DataFrame.
-        title (str): Title of the plot.
-        y_axis (str): Label for the y-axis.
-        hue_variable (str): Column name for the hue variable.
-        hue_label (str): Label for the hue variable in the legend.
+        light_grey_data (pd.DataFrame): DataFrame containing data to be plotted in light gray.
+        colored_data (pd.DataFrame): DataFrame containing data to be colored.
 
     Returns:
         None
     """
-    # Set the font to serif
-    plt.rcParams['font.family'] = 'serif'
-
-    # Create a new figure
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Get unique categories for the hue variable
-    categories = dataframe[hue_variable].unique()
-
-    # Define a color palette
-    palette = sns.color_palette("husl", len(categories))
-
-    # Create a color map for the categories
-    category_color_map = dict(zip(categories, palette))
-
-    # Plot each row with a color based on the categorical hue variable
-    for index, row in dataframe.iterrows():
-        ax.plot([col.split('_')[-1] for col in dataframe.columns[:-1]], row[:-1], 
-                color=category_color_map[row[hue_variable]], alpha=0.9)
-
-    # Customize the plot
-    ax.set_title(title)
-    ax.set_ylabel(y_axis)
-
-    # Create legend handles
-    handles = [plt.Line2D([0], [0], color=category_color_map[category], lw=2) for category in categories]
+    # Get unique indices for the minima and maxima across all objectives
+    max_indices = colored_data.idxmax()
+    min_indices = colored_data.idxmin()
     
-    # Add the legend
-    ax.legend(handles, categories, title=hue_label, bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Combine and filter unique indices
+    indices = pd.concat([max_indices, min_indices]).unique()
+    indices = [idx for idx in indices if idx in colored_data.index]
+    
+    # Get limits for the parallel axes
+    limits = parcoords.get_limits(light_grey_data)
+    
+    # Create parallel axes
+    axes = parcoords.ParallelAxes(limits)
 
-    plt.tight_layout()
+    # Plot data in light gray
+    axes.plot(light_grey_data, color='lightgrey', lw=0.5, alpha=0.5)
+    
+    # Plot colored data
+    
+    axes.plot(colored_data, color=color, lw=1)
+    
+    # Invert axis if needed
+    for column in light_grey_data.columns:
+        if '_P' in column:
+            axes.invert_axis(column)
 
-    # Save the plot
-    plt.savefig(f"experiment_results/{title}_parallel_axis_plot.png")
+    # Set figure size
+    fig = plt.gcf()
+    fig.set_size_inches((8, 4))
 
     # Show the plot
     plt.show()
-    return
 
 
 def clustered_box_plot(dataframe, title="", x_axis="x", y_axis="y", save=True):
