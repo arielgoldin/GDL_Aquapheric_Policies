@@ -1,0 +1,6 @@
+supplied_demand_GINI,supply_percapita_GINI,energy_costs,supplied_demand_PP1,supplied_demand_PP2,supplied_demand_PP3,supplied_demand_Toluquilla,supplied_demand_Pozos,comp_energy_costs,comp_supplied_demand_GINI,formulation
+0.00311042,0.017033774,0.002689834,1.265,1.936,1.679,1.709,2.01,0.144385419,0.075314204,supplied_demand_deficit-supply_percapita-supplied_demand_GINI-energy_costs
+0.016507655,0.007449857,0.007939112,1.137,1.218,1.185,1.376,1.513,0.206181861,0.05255614,supplied_demand_deficit-supply_percapita_GINI-energy_costs
+0.006426056,0.014306152,0.004465333,1.128,1.174,1.166,1.416,1.296,0.16281815,0.067520152,supplied_demand_deficit-supplied_demand_GINI-energy_costs
+0.004156533,0.010998553,0.08875116,1.098,1.153,1.14,1.152,1.155,0.240722188,0.058119658,supplied_demand_deficit-supplied_demand_GINI
+0.016289199,0.008034433,0.094668538,1.044,1.186,1.132,1.224,1.138,0.251870239,0.047812865,supplied_demand_deficit
