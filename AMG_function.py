@@ -24,10 +24,12 @@ def calculate_GINI(outcomes):
     return np.sum(diffs) / (2.0 * n * np.sum(sorted_objectives))
 
 def AMG_model_function(
-    crowding_factor=3.55, chapala_flow=6.9, calderon_lared_flow=1, pozos_flow=2.3, toluquilla_flow=0.5,
+    crowding_factor=3.55, 
+    chapala_flow=6.9, calderon_lared_flow=1, pozos_flow=2.3, toluquilla_flow=0.5,
     chapalaPP1_to_chapalaPP2=0.19, loss_grid=0.35, loss_potabilisation=0.07,
     aqp4_Toluquilla_to_PP1=0, aqp1_PP2_to_PP3=0, aqp2_PP3_to_Pozos=0, aqp3_Pozos_to_Toluquilla=0,
-    rounding_outcomes=3, rounding_levers=2, sufficientarian_thresholds=[142, 100, 50, 128]
+    rounding_outcomes=3, rounding_levers=2, sufficientarian_thresholds=[142, 100, 50, 128],
+    scenario="unspecified", experiment_name = "unspecified"
 ):
 
     ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
@@ -36,15 +38,13 @@ def AMG_model_function(
     # Calculate population and demand
     population_dict = {f"population_{ZA}": int(input_data_dict[f"domestic_intakes_{ZA}"] * crowding_factor) for ZA in ZA_names}
     demand_outputs = {
-        f"demand_{ZA}": np.round(
-            (population_dict[f"population_{ZA}"] * input_data_dict["domestic_consumption"] +
+        f"demand_{ZA}": 
+            ((population_dict[f"population_{ZA}"] * input_data_dict["domestic_consumption"] +
              input_data_dict[f"service_intakes_{ZA}"] * input_data_dict["service_consumption"] +
              input_data_dict[f"industry_intakes_{ZA}"] * input_data_dict["industry_consumption"] +
-             input_data_dict[f"public_intakes_{ZA}"] * input_data_dict["public_consumption"]) * conversion_m3s, 
-            rounding_outcomes) 
-        for ZA in ZA_names
-    }
-    total_demand = sum(demand_outputs.values())
+             input_data_dict[f"public_intakes_{ZA}"] * input_data_dict["public_consumption"]) * conversion_m3s )
+             for ZA in ZA_names}
+    #total_demand = sum(demand_outputs.values())
 
     # Calculate extraction and delivered water
     total_extraction = chapala_flow + calderon_lared_flow + toluquilla_flow + pozos_flow
@@ -73,13 +73,13 @@ def AMG_model_function(
         "additional_flow_Toluquilla": (potabilized_outputs["potabilized_PP1"] * 0.12 + potabilized_outputs["potabilized_Pozos"] * 0.02),
         "additional_flow_Pozos": potabilized_outputs["potabilized_Pozos"] * -0.22
     }
-
-    aqp_flows = [aqp1_PP2_to_PP3, aqp2_PP3_to_Pozos, aqp3_Pozos_to_Toluquilla, aqp4_Toluquilla_to_PP1]
-    aqp_flow_PP1 = aqp4_Toluquilla_to_PP1
-    aqp_flow_PP2 = -aqp1_PP2_to_PP3
-    aqp_flow_PP3 = (aqp1_PP2_to_PP3 - aqp2_PP3_to_Pozos )
-    aqp_flow_Toluquilla = (aqp3_Pozos_to_Toluquilla - aqp4_Toluquilla_to_PP1)
-    aqp_flow_Pozos = (aqp2_PP3_to_Pozos - aqp3_Pozos_to_Toluquilla)
+    scale = 10**(-rounding_levers)
+    aqp_flows = [flow * scale for flow in [aqp1_PP2_to_PP3, aqp2_PP3_to_Pozos, aqp3_Pozos_to_Toluquilla, aqp4_Toluquilla_to_PP1]]
+    aqp_flow_PP1 = aqp4_Toluquilla_to_PP1 * scale
+    aqp_flow_PP2 = -aqp1_PP2_to_PP3 * scale
+    aqp_flow_PP3 = (aqp1_PP2_to_PP3 - aqp2_PP3_to_Pozos ) * scale
+    aqp_flow_Toluquilla = (aqp3_Pozos_to_Toluquilla - aqp4_Toluquilla_to_PP1) * scale
+    aqp_flow_Pozos = (aqp2_PP3_to_Pozos - aqp3_Pozos_to_Toluquilla) * scale
 
     supplied_outputs = {
         "supplied_PP1": (potabilized_outputs["potabilized_PP1"] + additional_flows["additional_flow_PP1"] + aqp_flow_PP1) * (1 - loss_grid),
@@ -95,9 +95,9 @@ def AMG_model_function(
     model_outputs = {**demand_outputs, **supplied_outputs}
 
     # Calculate individual outcomes
-    supplied_demand_outcomes = {f"supplied_demand_{ZA}": np.round(calculate_supplied_demand(model_outputs, ZA), rounding_outcomes) for ZA in ZA_names}
+    supplied_demand_outcomes = {f"supplied_demand_{ZA}": calculate_supplied_demand(model_outputs, ZA) for ZA in ZA_names}
     supplied_demand_deficit_outcomes = {f"supplied_demand_deficit_{ZA}": calculate_supplied_demand_deficit(supplied_demand_outcomes, ZA) for ZA in ZA_names}
-    supply_percapita_outcomes = {f"supply_percapita_{ZA}": np.round(calculate_supply_percapita(model_outputs, population_dict, ZA), 0) for ZA in ZA_names}
+    supply_percapita_outcomes = {f"supply_percapita_{ZA}": calculate_supply_percapita(model_outputs, population_dict, ZA) for ZA in ZA_names}
     individual_outcomes = {**supplied_demand_outcomes, **supplied_demand_deficit_outcomes, **supply_percapita_outcomes}
 
     # Calculate justice objectives
@@ -123,7 +123,17 @@ def AMG_model_function(
         **ZAs_below_threshold
     }
 
-    return {**delivered_outputs, **model_outputs, **individual_outcomes, **aggregated_outcomes}
+    all_outcomes_dict= {**individual_outcomes, **aggregated_outcomes}
+
+    for val in all_outcomes_dict:
+        all_outcomes_dict[val] = np.round(all_outcomes_dict[val], rounding_outcomes)
+
+    all_model_outputs_dict = {**delivered_outputs, **model_outputs}
+    
+    for val in all_model_outputs_dict:
+        all_model_outputs_dict[val] = np.round(all_model_outputs_dict[val],3)
+
+    return {**all_model_outputs_dict, **all_outcomes_dict} #, **{"scenario":scenario}}
 
 
 
