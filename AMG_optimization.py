@@ -14,7 +14,7 @@ def run_optimization(experiment_name,
                      model_function=AMG_model_function, 
                      outcomes = {"supplied_demand_deficit":True,"supplied_demand":False,"supply_percapita":False,
                                  
-                                 "supplied_demand_GINI":False,"supply_percapita_GINI":True, "average_supply_percapita":False,
+                                 "supplied_demand_GINI":False,"supply_percapita_GINI":True, "supply_percapita_average":False,
                                  "ZAs_below_142":False,"ZAs_below_128":False, "ZAs_below_100":False, "ZAs_below_50":False,
 
                                  "energy_costs":True},
@@ -60,7 +60,7 @@ def run_optimization(experiment_name,
     #OUTCOMES
     maximizing_outcomes = [*[f'supplied_demand_{ZA}' for ZA in ZA_names if "supplied_demand" in current_formulation],
                         *[f'supply_percapita_{ZA}' for ZA in ZA_names if "supply_percapita" in current_formulation],
-                        *[ outcome for outcome in ["average_supply_percapita"] if outcome in current_formulation]]
+                        *[ outcome for outcome in ["supply_percapita_average"] if outcome in current_formulation]]
 
     minimizing_outcomes = [*[f'supplied_demand_deficit_{ZA}' for ZA in ZA_names if "supplied_demand_deficit" in current_formulation],
                         *[ outcome for outcome in ['supplied_demand_GINI', 'supply_percapita_GINI', 'energy_costs', "ZAs_below_142", "ZAs_below_128","ZAs_below_100","ZAs_below_50"] if outcome in current_formulation]]
@@ -156,7 +156,7 @@ def run_optimization_for_convergence(experiment_name,
     #OUTCOMES
     maximizing_outcomes = [*[f'supplied_demand_{ZA}' for ZA in ZA_names if "supplied_demand" in current_formulation],
                         *[f'supply_percapita_{ZA}' for ZA in ZA_names if "supply_percapita" in current_formulation],
-                        *[ outcome for outcome in ["average_supply_percapita"] if outcome in current_formulation]]
+                        *[ outcome for outcome in ["supply_percapita_average"] if outcome in current_formulation]]
 
     minimizing_outcomes = [*[f'supplied_demand_deficit_{ZA}' for ZA in ZA_names if "supplied_demand_deficit" in current_formulation],
                         *[ outcome for outcome in ['supplied_demand_GINI', 'supply_percapita_GINI', 'energy_costs', "ZAs_below_142", "ZAs_below_128","ZAs_below_100","ZAs_below_50"] if outcome in current_formulation]]

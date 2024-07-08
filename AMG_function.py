@@ -28,7 +28,7 @@ def AMG_model_function(
     chapala_flow=6.9, calderon_lared_flow=1, pozos_flow=2.3, toluquilla_flow=0.5,
     chapalaPP1_to_chapalaPP2=0.19, loss_grid=0.35, loss_potabilisation=0.07,
     aqp4_Toluquilla_to_PP1=0, aqp1_PP2_to_PP3=0, aqp2_PP3_to_Pozos=0, aqp3_Pozos_to_Toluquilla=0,
-    rounding_outcomes=3, rounding_levers=2, sufficientarian_thresholds=[142, 100, 50, 128],
+    rounding_outcomes=3, rounding_levers=3, sufficientarian_thresholds=[142, 100, 50, 128],
     scenario="unspecified", experiment_name = "unspecified"
 ):
 
@@ -104,7 +104,7 @@ def AMG_model_function(
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
     supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))
-    average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
+    #average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
 
@@ -118,7 +118,6 @@ def AMG_model_function(
         "min_supplied_demand": min_supplied_demand,
         "supply_percapita_GINI": supply_percapita_GINI,
         "supplied_demand_GINI": supplied_demand_GINI,
-        "average_supply_percapita": average_supply_percapita,
         "energy_costs": energy_cost_fraction,
         **ZAs_below_threshold
     }

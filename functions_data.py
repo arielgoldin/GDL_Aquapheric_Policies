@@ -3,7 +3,7 @@ from AMG_function import AMG_model_function
 import numpy as np
 
 
-def full_dataframe(df, function=AMG_model_function, experiment_name="",scenarios_in_dataframe=False, scenario={}, folder="experiment_results"):
+def full_dataframe(df, scenarios_in_dataframe, function=AMG_model_function, experiment_name="", scenario={}, folder="experiment_results"):
     
     # Define the names of the columns that could be used as arguments for the function
     aqp_segments = ["aqp4_Toluquilla_to_PP1", "aqp1_PP2_to_PP3", "aqp2_PP3_to_Pozos", "aqp3_Pozos_to_Toluquilla"]
@@ -44,6 +44,8 @@ def full_dataframe(df, function=AMG_model_function, experiment_name="",scenarios
 
     else: results_df["experiment"]=experiment_name
 
+    
+
 
     #results_df.to_csv(f"{folder}/{experiment_name}.csv", index=False)
 
@@ -74,38 +76,35 @@ def find_compromise(refSet, deficitIndex):
     
     return compromise
 
-def add_objective_columns(df, objectives_min, objectives_max, compromise_objectives):
+def find_best_policies(df, objectives_min, objectives_max, compromise_objectives):
     df_copy = df.copy()  # To avoid modifying the original DataFrame
     
     # Group the DataFrame by 'experiment_name'
     grouped = df_copy.groupby('experiment_name')
     
+    # Add columns to the DataFrame for min and max objectives only
+    for obj in objectives_min:
+        df_copy[f'{obj}_min'] = False
+    for obj in objectives_max:
+        df_copy[f'{obj}_max'] = False
+    # Add columns for compromise objectives
+    for obj in compromise_objectives:
+        df_copy[f'{obj}_compromise'] = False
+    
     # Iterate over each group
     for name, group in grouped:
         # Find the indices of the min and max for each objective within the group
-        min_indices = {obj: group[obj] == group[obj].min() for obj in objectives_min}
-        max_indices = {obj: group[obj] == group[obj].max() for obj in objectives_max}
+        for obj in objectives_min:
+            min_value = group[obj].min()
+            min_indices = group[group[obj] == min_value].index
+            df_copy.loc[min_indices, f'{obj}_min'] = True
+        for obj in objectives_max:
+            max_value = group[obj].max()
+            max_indices = group[group[obj] == max_value].index
+            df_copy.loc[max_indices, f'{obj}_max'] = True
         
         # Find the compromise solution within the group
         compromise_index = find_compromise(group[compromise_objectives], deficitIndex=0)
-        
-        # Add columns to the DataFrame for min and max objectives only
-        for obj in objectives_min:
-            df_copy.loc[group.index, f'{obj}_min'] = False
-        for obj in objectives_max:
-            df_copy.loc[group.index, f'{obj}_max'] = False
-        # Add columns for compromise objectives
-        for obj in compromise_objectives:
-            df_copy.loc[group.index, f'{obj}_compromise'] = False
-        
-        # Set True for min, max, and compromise within the group
-        for obj in objectives_min:
-            df_copy.loc[min_indices[obj].index, f'{obj}_min'] = True
-        
-        for obj in objectives_max:
-            df_copy.loc[max_indices[obj].index, f'{obj}_max'] = True
-        
-        # Compromise solution
         for obj in compromise_objectives:
             df_copy.loc[group.index[compromise_index], f'{obj}_compromise'] = True
     
