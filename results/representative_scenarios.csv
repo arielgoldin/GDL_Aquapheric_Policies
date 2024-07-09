@@ -1,4 +1,4 @@
-,chapala_flow,calderon_lared_flow,pozos_flow,toluquilla_flow,name
-HIGH,2.3,0.333,0.767,0.167,rep_scen_HIGH
-MID,4.6,0.666,1.534,0.334,rep_scen_MID
-LOW,6.8999999999999995,0.9990000000000001,2.301,0.501,rep_scen_LOW
+,Chapala,Calderon la Red,Pozos well system,Toluquilla well system,name
+2021_drought,7.1,0,2.2,0.4,2021 drought
+chapala_incident,1.8,1,2.2,0.4,Chapala accident
+groundwater_scarcity,6.9,1,0.69,0.15,Groundwater scarcity
