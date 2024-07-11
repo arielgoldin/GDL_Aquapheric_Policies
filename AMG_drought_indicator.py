@@ -27,7 +27,10 @@ def initialize_models():
         log_reg_results[threshold] = logit.fit(disp=0)
 
 # Function to predict the likelihood of falling below a given threshold
-def predict_scenario(scenario, threshold):
+def predict_scenario(scenario_dict, threshold):
+
+    scenario = scenario_dict.copy()
+
     scenario['intercept'] = 1
     predictors = ['chapala_flow', 'calderon_lared_flow', 'pozos_flow', 'toluquilla_flow', 'intercept']
     scenario_array = np.array([scenario[col] for col in predictors])
@@ -36,7 +39,11 @@ def predict_scenario(scenario, threshold):
     return probability
 
 # Function to determine the drought state and likelihood based on flow values
-def get_drought_state(scenario, reliability_threshold=0.05):
+def get_drought_state(scenario_dict, reliability_threshold=0.05):
+    
+    # Make a new variable to avoid overwriting the scenario object
+    scenario = scenario_dict.copy()
+
     for threshold in sufficientarian_thresholds:
         likelihood = round(predict_scenario(scenario, threshold),3)
         

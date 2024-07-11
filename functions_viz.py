@@ -9,10 +9,126 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from pandas.plotting import parallel_coordinates
+from ema_workbench.analysis import parcoords
+import matplotlib.pyplot as plt
  
 figsize = (11,6)
 fontsize = 14
 fig_dir = 'temp_figs/'
+
+def visualize_best_policies(best_policies_df, objectives_dict):
+    ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
+
+    # Identify the columns that indicate best performance (ending in '_min', '_max', or '_compromise')
+    objectives_min = ['supplied_demand_deficit_PP1',
+                      'supplied_demand_deficit_PP2', 
+                      'supplied_demand_deficit_PP3',
+                      'supplied_demand_deficit_Toluquilla', 
+                      'supplied_demand_deficit_Pozos',
+                      "supplied_demand_GINI",
+                      "supply_percapita_GINI",
+                      "energy_costs"]
+
+    objectives_max = ['supplied_demand_PP1', 
+                      'supplied_demand_PP2', 
+                      'supplied_demand_PP3',
+                      'supplied_demand_Toluquilla', 
+                      'supplied_demand_Pozos',
+                      'supply_percapita_PP1', 
+                      'supply_percapita_PP2', 
+                      'supply_percapita_PP3',
+                      'supply_percapita_Toluquilla', 
+                      'supply_percapita_Pozos', 
+                      "supply_percapita_average"]
+    
+    # Ensure that the null policy will always be displayed
+    best_performance_columns = ["no_policy"]
+
+    for obj in objectives_dict.keys():
+        if objectives_dict[obj]:
+            if obj in objectives_min:
+                best_performance_columns.append(f"{obj}_min")
+            elif obj in objectives_max:
+                best_performance_columns.append(f"{obj}_max")
+            best_performance_columns.append(f"{obj}_compromise")
+
+    # Create a dictionary for labeling the policies
+    policy_labels = {
+        f"{obj}_min": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_min
+    }
+    policy_labels.update({
+        f"{obj}_max": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_max
+    })
+    policy_labels.update({
+        f"{obj}_compromise": f"Compromise policy" for obj in objectives_dict.keys() if objectives_dict[obj]
+    })
+    policy_labels.update({
+        "no_policy": "No policy"
+    })
+
+    # Filter rows where at least one of the best performance columns is True
+    best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
+
+    # Debugging: print the best_performing_policies_df to check if it's populated correctly
+    print("Best Performing Policies DataFrame:")
+    print(best_performing_policies_df)
+
+    # Create a dictionary to map index to labels
+    index_labels = {}
+    for col, label in policy_labels.items():
+        indices = best_performing_policies_df[best_performing_policies_df[col] == True].index
+        for idx in indices:
+            if idx in index_labels:
+                index_labels[idx] += f", {label}"
+            else:
+                index_labels[idx] = label
+
+    # Add a new column for policy labels
+    best_performing_policies_df['policy_labels'] = best_performing_policies_df.index.map(index_labels)
+
+    # Select the supply per capita columns for the five zones of analysis (ZA)
+    supply_per_capita_columns = [
+        'supply_percapita_PP1', 'supply_percapita_PP2', 'supply_percapita_PP3',
+        'supply_percapita_Toluquilla', 'supply_percapita_Pozos'
+    ]
+    data = best_performing_policies_df[supply_per_capita_columns]
+
+    # Debugging: print the data to be plotted
+    print("Data to be plotted:")
+    print(data)
+
+    # Get limits for parallel coordinates plot
+    limits = pd.read_csv("results/limits.csv")
+
+    # Create the parallel axes plot
+    paraxes = parcoords.ParallelAxes(limits)
+
+    # Plot each row
+    colors = plt.cm.tab10.colors
+    for i, (index, row) in enumerate(data.iterrows()):
+        label = index_labels.get(index, str(index))
+        if 'Compromise policy' in label:
+            paraxes.plot(row.to_frame().T, label=label, color='#00A6D6', linewidth=4)
+        else:
+            color = 'darkgrey' if 'No policy' in label else colors[i % len(colors)]
+            paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=4)
+
+    # Add x-axis label
+    paraxes.fig.text(0.5, 0.04, 'Supply per capita [l/day/person]', ha='center', va='center', fontsize="large")
+
+    # Update axis labels
+    for ax in paraxes.axes:
+        labels = [label.get_text().replace('supply_percapita_', '') for label in ax.get_xticklabels()]
+        ax.set_xticklabels(labels)
+
+    # Add legend and show plot
+    paraxes.legend()
+    plt.show()
+    
+    return best_performing_policies_df.index.tolist(), best_performing_policies_df['policy_labels']
+
+
+
 
 
 def violin_plot(dataframe, title="", x_axis="x", y_axis="y", save=True):

@@ -51,30 +51,112 @@ def full_dataframe(df, scenarios_in_dataframe, function=AMG_model_function, expe
 
     return results_df
 
-def find_compromise(refSet, deficitIndex):
 
-    refSet=refSet.values
-    # normalize objectives for calculation of best compromise solution
-    nobjs = np.shape(refSet)[1]
-    normObjs = np.zeros([np.shape(refSet)[0],nobjs])
+def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
+    df_copy = df.copy()  # To avoid modifying the original DataFrame
+
+    objectives_min = ['supplied_demand_deficit_PP1',
+                      'supplied_demand_deficit_PP2', 
+                      'supplied_demand_deficit_PP3',
+                      'supplied_demand_deficit_Toluquilla', 
+                      'supplied_demand_deficit_Pozos',
+                      "supplied_demand_GINI",
+                      "supply_percapita_GINI",
+                      "energy_costs"]
+
+    objectives_max = ['supplied_demand_PP1', 
+                      'supplied_demand_PP2', 
+                      'supplied_demand_PP3',
+                      'supplied_demand_Toluquilla', 
+                      'supplied_demand_Pozos',
+                      'supply_percapita_PP1', 
+                      'supply_percapita_PP2', 
+                      'supply_percapita_PP3',
+                      'supply_percapita_Toluquilla', 
+                      'supply_percapita_Pozos', 
+                      "supply_percapita_average"]
     
-    for i in range(np.shape(refSet)[0]):
+    # Filter objectives based on the dictionary
+    selected_objectives = [obj for obj, use in objectives_dict.items() if use]
+
+    # Add columns to the DataFrame for min or max, and compromise objectives only
+    for obj in selected_objectives:
+        if obj in objectives_min:
+            df_copy[f'{obj}_min'] = False
+        elif obj in objectives_max:
+            df_copy[f'{obj}_max'] = False
+        df_copy[f'{obj}_compromise'] = False
+    
+    # Determine if each objective should find the min or max
+    for obj in selected_objectives:
+        if obj in objectives_min:
+            min_value = df_copy[obj].min()
+            min_indices = df_copy[df_copy[obj] == min_value].index
+            df_copy.loc[min_indices, f'{obj}_min'] = True
+        elif obj in objectives_max:
+            max_value = df_copy[obj].max()
+            max_indices = df_copy[df_copy[obj] == max_value].index
+            df_copy.loc[max_indices, f'{obj}_max'] = True
+    
+    # Find the compromise solution
+    compromise_index = find_compromise(df_copy[selected_objectives])
+    if compromise_index is not None:
+        df_copy.loc[compromise_index, [f'{obj}_compromise' for obj in selected_objectives]] = True
+
+    # Add a "No Policy" row with all AQP flows set to zero
+    no_policy_flows = {'aqp1_PP2_to_PP3': 0, 'aqp2_PP3_to_Pozos': 0, 'aqp3_Pozos_to_Toluquilla': 0, 'aqp4_Toluquilla_to_PP1': 0}
+    no_policy_row = AMG_model_function(**scenario, **no_policy_flows)
+    
+    # Create a column to identify the "no policy" policy
+    df_copy["no_policy"] = False
+    no_policy_row["no_policy"] = True
+    df_copy = df_copy.append(no_policy_row, ignore_index=True)
+    df_copy.fillna(0, inplace=True)
+
+    return df_copy
+
+def find_compromise(refSet):
+
+    objectives_min = ['supplied_demand_deficit_PP1',
+                      'supplied_demand_deficit_PP2', 
+                      'supplied_demand_deficit_PP3',
+                      'supplied_demand_deficit_Toluquilla', 
+                      'supplied_demand_deficit_Pozos',
+                      "supplied_demand_GINI",
+                      "supply_percapita_GINI",
+                      "energy_costs"]
+
+    objectives_max = ['supplied_demand_PP1', 
+                      'supplied_demand_PP2', 
+                      'supplied_demand_PP3',
+                      'supplied_demand_Toluquilla', 
+                      'supplied_demand_Pozos',
+                      'supply_percapita_PP1', 
+                      'supply_percapita_PP2', 
+                      'supply_percapita_PP3',
+                      'supply_percapita_Toluquilla', 
+                      'supply_percapita_Pozos', 
+                      "supply_percapita_average"]
+    
+    nobjs = refSet.shape[1]
+    normObjs = np.zeros(refSet.shape)
+
+    for i in range(refSet.shape[0]):
         for j in range(nobjs):
-            # take the square root of the deficit so it's less skewed
-            if j == deficitIndex:
-                normObjs[i,j] = (np.sqrt(refSet[i,j])-np.mean(np.sqrt(refSet[:,j])))/np.std(np.sqrt(refSet[:,j]))
-            else:
-                 normObjs[i,j] = (refSet[i,j]-np.mean(refSet[:,j]))/np.std(refSet[:,j])
-    
-    # find best comprommise solution (solution closest to ideal point)
-    dists = np.zeros(np.shape(refSet)[0])
+            if refSet.columns[j] in objectives_max:
+                normObjs[i, j] = (-refSet.iloc[i, j] + refSet.iloc[:, j].mean()) / refSet.iloc[:, j].std()
+            elif refSet.columns[j] in objectives_min:
+                normObjs[i, j] = (-refSet.iloc[:, j].mean() + refSet.iloc[i, j]) / refSet.iloc[:, j].std()
+
+    dists = np.zeros(refSet.shape[0])
     for i in range(len(dists)):
         for j in range(nobjs):
-            dists[i] = dists[i] + (normObjs[i,j]-np.min(normObjs[:,j]))**2
-            
+            dists[i] += (normObjs[i, j] - np.min(normObjs[:, j])) ** 2
+
     compromise = np.argmin(dists)
-    
     return compromise
+
+
 
 def find_best_policies(df, objectives_min, objectives_max, compromise_objectives):
     df_copy = df.copy()  # To avoid modifying the original DataFrame
@@ -110,16 +192,17 @@ def find_best_policies(df, objectives_min, objectives_max, compromise_objectives
     
     return df_copy
 
+
 def find_minmax_values(full_df, 
                        objectives_max=['supplied_demand_PP1', 'supplied_demand_PP2', 'supplied_demand_PP3',
-                                       'supplied_demand_Toluquilla', 'supplied_demand_Pozos'],
+                                       'supplied_demand_Toluquilla', 'supplied_demand_Pozos',"supply_percapita_average"],
                        objectives_min = ['supplied_demand_deficit_PP1',
                                           'supplied_demand_deficit_PP2', 'supplied_demand_deficit_PP3',
                                           'supplied_demand_deficit_Toluquilla', 'supplied_demand_deficit_Pozos',
                                           "supplied_demand_GINI","supply_percapita_GINI",
                                           'ZAs_below_142','ZAs_below_100', 'ZAs_below_50',
                                           "energy_costs"],
-                       compromise_objectives = ["energy_costs","supplied_demand_GINI"]):
+                       compromise_objectives = ["energy_costs","supply_percapita_GINI",]):
        
        ''' Finds the maximum or minimum value for each objective for each formulation'''
        
