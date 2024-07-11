@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from AMG_optimization import run_optimization, AMG_model_function, full_dataframe
+from AMG_optimization import run_optimization, full_dataframe
+from AMG_function import AMG_model_function
 from functions_data import find_best_policies_for_specified_objectives
 from functions_viz import visualize_best_policies
 import seaborn as sns
