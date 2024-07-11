@@ -3,16 +3,14 @@ import seaborn as sns
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib import colormaps, cm
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from pandas.plotting import parallel_coordinates
 from ema_workbench.analysis import parcoords
-import matplotlib.pyplot as plt
- 
-figsize = (11,6)
+
+figsize = (11, 6)
 fontsize = 14
 fig_dir = 'temp_figs/'
 
@@ -69,10 +67,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     # Filter rows where at least one of the best performance columns is True
     best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
 
-    # Debugging: print the best_performing_policies_df to check if it's populated correctly
-    print("Best Performing Policies DataFrame:")
-    print(best_performing_policies_df)
-
     # Create a dictionary to map index to labels
     index_labels = {}
     for col, label in policy_labels.items():
@@ -93,10 +87,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     ]
     data = best_performing_policies_df[supply_per_capita_columns]
 
-    # Debugging: print the data to be plotted
-    print("Data to be plotted:")
-    print(data)
-
     # Get limits for parallel coordinates plot
     limits = pd.read_csv("results/limits.csv")
 
@@ -111,7 +101,7 @@ def visualize_best_policies(best_policies_df, objectives_dict):
             paraxes.plot(row.to_frame().T, label=label, color='#00A6D6', linewidth=4)
         else:
             color = 'darkgrey' if 'No policy' in label else colors[i % len(colors)]
-            paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=4)
+            paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=2)
 
     # Add x-axis label
     paraxes.fig.text(0.5, 0.04, 'Supply per capita [l/day/person]', ha='center', va='center', fontsize="large")
@@ -126,8 +116,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     plt.show()
     
     return best_performing_policies_df.index.tolist(), best_performing_policies_df['policy_labels']
-
-
 
 
 
