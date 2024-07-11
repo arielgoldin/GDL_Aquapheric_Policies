@@ -110,7 +110,7 @@ def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
     # Create a column to identify the "no policy" policy
     df_copy["no_policy"] = False
     no_policy_row["no_policy"] = True
-    df_copy = df_copy.append(no_policy_row, ignore_index=True)
+    df_copy = pd.concat([df_copy, no_policy_row], ignore_index=True)
     df_copy.fillna(0, inplace=True)
 
     return df_copy
