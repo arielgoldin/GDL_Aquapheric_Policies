@@ -105,7 +105,7 @@ def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
 
     # Add a "No Policy" row with all AQP flows set to zero
     no_policy_flows = {'aqp1_PP2_to_PP3': 0, 'aqp2_PP3_to_Pozos': 0, 'aqp3_Pozos_to_Toluquilla': 0, 'aqp4_Toluquilla_to_PP1': 0}
-    no_policy_row = AMG_model_function(**scenario, **no_policy_flows)
+    no_policy_row = pd.DataFrame([AMG_model_function(**scenario, **no_policy_flows)])
     
     # Create a column to identify the "no policy" policy
     df_copy["no_policy"] = False
@@ -113,7 +113,7 @@ def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
     df_copy = pd.concat([df_copy, no_policy_row], ignore_index=True)
     df_copy.fillna(0, inplace=True)
 
-    return df_copy
+    return df_copy, no_policy_row
 
 def find_compromise(refSet):
 
