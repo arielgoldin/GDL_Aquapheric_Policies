@@ -50,6 +50,12 @@ def visualize_best_policies(best_policies_df, objectives_dict):
                 best_performance_columns.append(f"{obj}_max")
             best_performance_columns.append(f"{obj}_compromise")
 
+    # Print the columns expected for performance
+    print("Expected best performance columns:", best_performance_columns)
+
+    # Print the columns present in the DataFrame
+    print("Columns in best_policies_df:", best_policies_df.columns.tolist())
+
     # Check if the best_performance_columns exist in the DataFrame
     missing_columns = [col for col in best_performance_columns if col not in best_policies_df.columns]
     if missing_columns:
