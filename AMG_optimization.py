@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from platypus import EpsNSGAII, ProcessPoolEvaluator
 from functions_data import full_dataframe, find_compromise
 from ema_workbench import (Model, RealParameter, ScalarOutcome,
                            MultiprocessingEvaluator, ema_logging,
