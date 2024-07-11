@@ -50,6 +50,11 @@ def visualize_best_policies(best_policies_df, objectives_dict):
                 best_performance_columns.append(f"{obj}_max")
             best_performance_columns.append(f"{obj}_compromise")
 
+    # Check if the best_performance_columns exist in the DataFrame
+    missing_columns = [col for col in best_performance_columns if col not in best_policies_df.columns]
+    if missing_columns:
+        raise ValueError(f"Columns {missing_columns} are missing from the DataFrame.")
+
     # Create a dictionary for labeling the policies
     policy_labels = {
         f"{obj}_min": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_min
@@ -67,25 +72,34 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     # Filter rows where at least one of the best performance columns is True
     best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
 
+    # Debugging: print the best_performing_policies_df to check if it's populated correctly
+    print("Best Performing Policies DataFrame:")
+    print(best_performing_policies_df)
+
     # Create a dictionary to map index to labels
     index_labels = {}
     for col, label in policy_labels.items():
-        indices = best_performing_policies_df[best_performing_policies_df[col] == True].index
-        for idx in indices:
-            if idx in index_labels:
-                index_labels[idx] += f", {label}"
-            else:
-                index_labels[idx] = label
+        if col in best_performing_policies_df.columns:
+            indices = best_performing_policies_df[best_performing_policies_df[col] == True].index
+            for idx in indices:
+                if idx in index_labels:
+                    index_labels[idx] += f", {label}"
+                else:
+                    index_labels[idx] = label
 
     # Add a new column for policy labels
     best_performing_policies_df['policy_labels'] = best_performing_policies_df.index.map(index_labels)
 
-    # Select the supply per capita columns for the five zones of analysis (ZA)
+    # Select the supply_per_capita columns for the five zones of analysis (ZA)
     supply_per_capita_columns = [
         'supply_percapita_PP1', 'supply_percapita_PP2', 'supply_percapita_PP3',
         'supply_percapita_Toluquilla', 'supply_percapita_Pozos'
     ]
     data = best_performing_policies_df[supply_per_capita_columns]
+
+    # Debugging: print the data to be plotted
+    print("Data to be plotted:")
+    print(data)
 
     # Get limits for parallel coordinates plot
     limits = pd.read_csv("results/limits.csv")
