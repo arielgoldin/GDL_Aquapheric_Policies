@@ -9,7 +9,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from pandas.plotting import parallel_coordinates
-from ema-workbench.analysis import parcoords
+from ema_workbench.analysis import parcoords
 import matplotlib.pyplot as plt
  
 figsize = (11,6)
