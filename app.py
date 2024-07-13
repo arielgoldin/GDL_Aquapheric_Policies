@@ -63,9 +63,9 @@ objectives_dict = {
 }
 
 # Main section
-st.title('Water Supply Optimization Application')
+st.title('Distribution Policies Decision SUpport Tool')
 st.write("""
-This app allows you to select a water supply optimization scenario and visualize the best policies based on the selected objectives.
+This app facilitates an exploration of objectives_based distribution policies for Guadalajara's Aquapheric. These policies were found using an Evolutionary Multi-Objective Optimization Algorithm and an a posteriori filtering approach for finding the best performing policies for each scenario.
 """)
 
 # Button to read the CSV and display results
