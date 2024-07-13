@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from AMG_optimization import run_optimization, AMG_model_function, full_dataframe
 from functions_data import find_best_policies_for_specified_objectives
 from functions_viz import visualize_best_policies
 import seaborn as sns
@@ -40,7 +39,6 @@ scenario_descriptions = {
     "chapala_incident": "In May 2024, a heat wave caused the national electric grid to malfunction leading to considerable damage to the main Chapala pumping system that lasted a few days. Due to lack of data, this scenario was artificially generated where Chapala flow is set to 1.8 m3/s representing the water flowing usually through the old system and the rest are set as baseline.",
     "2021_drought": "In 2021, due to a combination of an intense drought and a spike in consumption due to COVID, the Calderon Dam reached critical levels and had to be shut down leaving around half a million people without water supply for almost 4 months. This scenario motivated the completion of the Aquapheric.",
     "groundwater_scarcity" : "The aquifers that provide water to Guadalajara are over-exploited. This fictional but possible scenario set the Pozos flow to three times less than its 2020 average values and Toluquilla to half."
-
 }
 
 # Sidebar inputs for the scenario
@@ -53,15 +51,15 @@ st.sidebar.write(scenario_descriptions.get(scenario_name, "No description availa
 # Objectives selection
 st.sidebar.header('Select Objectives')
 objectives_dict = {
-    'supplied_demand_GINI': st.sidebar.checkbox('Supplied Demand GINI', value=False),
-    'supply_percapita_GINI': st.sidebar.checkbox('Supply Per Capita GINI', value=False),
-    'energy_costs': st.sidebar.checkbox('Energy Costs', value=False),
-    'supplied_demand_PP1': st.sidebar.checkbox('Supplied Demand PP1', value=False),
-    'supplied_demand_PP2': st.sidebar.checkbox('Supplied Demand PP2', value=False),
-    'supplied_demand_PP3': st.sidebar.checkbox('Supplied Demand PP3', value=False),
-    'supplied_demand_Toluquilla': st.sidebar.checkbox('Supplied Demand Toluquilla', value=False),
-    'supplied_demand_Pozos': st.sidebar.checkbox('Supplied Demand Pozos', value=False),
-    'supply_percapita_average': st.sidebar.checkbox('Supply Per Capita Average', value=False)
+    'supplied_demand_GINI': st.sidebar.checkbox('Egalitarian - Supplied Demand', value=False),
+    'supply_percapita_GINI': st.sidebar.checkbox('Egalitarian - Supply Per capita', value=False),
+    'supply_percapita_average': st.sidebar.checkbox('Utilitarian - Supply Per Capita Average', value=False),
+    'energy_costs': st.sidebar.checkbox('Energy Costs Efficiency', value=False),
+    'supplied_demand_deficit_PP1': st.sidebar.checkbox('Prioritize PP1', value=False),
+    'supplied_demand_deficit_PP2': st.sidebar.checkbox('Prioritize PP2', value=False),
+    'supplied_demand_deficit_PP3': st.sidebar.checkbox('Prioritize PP3', value=False),
+    'supplied_demand_deficit_Toluquilla': st.sidebar.checkbox('Prioritize Toluquilla', value=False),
+    'supplied_demand_deficit_Pozos': st.sidebar.checkbox('Prioritize Pozos', value=False)
 }
 
 # Main section
@@ -101,7 +99,8 @@ if st.sidebar.button('Load and Visualize'):
     # Display the AQP flows for the best performing policies
     st.header('AQP Flows for Best Performing Policies')
     aqp_flows = ['aqp1_PP2_to_PP3', 'aqp2_PP3_to_Pozos', 'aqp3_Pozos_to_Toluquilla', 'aqp4_Toluquilla_to_PP1']
-    best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']]
+    additional_columns = ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']
+    best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns]
     best_policies_aqp_flows['policy_labels'] = policy_labels
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
     st.dataframe(best_policies_aqp_flows)
@@ -111,3 +110,4 @@ st.title('Water Supply Optimization Application')
 st.write("""
 This app allows you to select a water supply optimization scenario and visualize the best policies based on the selected objectives.
 """)
+
