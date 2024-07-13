@@ -87,9 +87,9 @@ if st.sidebar.button('Load and Visualize'):
     best_policies_df = find_best_policies_for_specified_objectives(full_optimization_results, objectives_dict, scenario)
 
     # Display the drought state
-    st.header('Drought State')
+    st.header('Urban Drought Indicator')
     drought_state = get_drought_state(scenario)
-    st.write("Based on the current water flows, the urban drought state is considered ", drought_state)
+    st.write("Based on the current water flows, the urban drought state is considered ", **drought_state**)
 
     # Display the parallel coordinates plot
     st.header('Distribution Policies Based on your Objectives')
