@@ -89,7 +89,7 @@ if st.sidebar.button('Load and Visualize'):
     # Display the drought state
     st.header('Urban Drought Indicator')
     drought_state = get_drought_state(scenario)
-    st.write("Based on the current water flows, the urban drought state is considered ", **drought_state**)
+    st.write(f"Based on the current water flows, the urban drought state is considered  **{drought_state}**")
 
     # Display the parallel coordinates plot
     st.header('Distribution Policies Based on your Objectives')
