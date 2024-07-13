@@ -105,9 +105,5 @@ if st.sidebar.button('Load and Visualize'):
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
     st.dataframe(best_policies_aqp_flows)
 
-# Main section
-st.title('Water Supply Optimization Application')
-st.write("""
-This app allows you to select a water supply optimization scenario and visualize the best policies based on the selected objectives.
-""")
+
 
