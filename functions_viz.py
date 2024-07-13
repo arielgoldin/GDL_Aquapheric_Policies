@@ -14,6 +14,7 @@ figsize = (11, 6)
 fontsize = 14
 fig_dir = 'temp_figs/'
 
+
 def visualize_best_policies(best_policies_df, objectives_dict):
     ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
 
@@ -122,6 +123,12 @@ def visualize_best_policies(best_policies_df, objectives_dict):
         else:
             color = 'darkgrey' if 'No policy' in label else colors[i % len(colors)]
             paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=2)
+
+    # Add horizontal lines for specific values
+    for ax in paraxes.axes:
+        ax.axhline(y=147, color='red', linestyle='--', linewidth=1)
+        ax.axhline(y=100, color='green', linestyle='--', linewidth=1)
+        ax.axhline(y=50, color='blue', linestyle='--', linewidth=1)
 
     # Add x-axis label
     paraxes.fig.text(0.5, 0.04, 'Supply per capita [l/day/person]', ha='center', va='center', fontsize="large")
