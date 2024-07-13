@@ -63,9 +63,9 @@ objectives_dict = {
 }
 
 # Main section
-st.title('Distribution Policies Decision SUpport Tool')
+st.title('Distribution Policies Decision Support Tool')
 st.write("""
-This app facilitates an exploration of objectives_based distribution policies for Guadalajara's Aquapheric. These policies were found using an Evolutionary Multi-Objective Optimization Algorithm and an a posteriori filtering approach for finding the best performing policies for each scenario.
+This app facilitates an exploration of objective-based distribution policies for Guadalajara's Aquapheric. These policies were found using an Evolutionary Multi-Objective Optimization Algorithm and an a posteriori filtering approach for selecting the best performing policies for each scenario.
 """)
 
 # Button to read the CSV and display results
@@ -89,7 +89,7 @@ if st.sidebar.button('Load and Visualize'):
     # Display the drought state
     st.header('Drought State')
     drought_state = get_drought_state(scenario)
-    st.write(drought_state)
+    st.write(f"Based on the current water flows, the urban drought state is considered {drought_state})
 
     # Display the parallel coordinates plot
     st.header('Distribution Policies Based on your Objectives')
@@ -97,7 +97,7 @@ if st.sidebar.button('Load and Visualize'):
     st.pyplot()
 
     # Display the AQP flows for the best performing policies
-    st.header('AQP Flows for Best Performing Policies')
+    st.header('AqP Flows for Best Performing Policies')
     aqp_flows = ['aqp1_PP2_to_PP3', 'aqp2_PP3_to_Pozos', 'aqp3_Pozos_to_Toluquilla', 'aqp4_Toluquilla_to_PP1']
     additional_columns = ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']
     best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns]
