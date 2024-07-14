@@ -129,6 +129,11 @@ def visualize_best_policies(best_policies_df, objectives_dict):
         ax.axhline(y=0.58, color='orange', linestyle='--', linewidth=1)
         ax.axhline(y=0.29, color='red', linestyle='--', linewidth=1)
 
+        # Add labels to the horizontal lines
+        ax.text(1.01, 0.86, '147', transform=ax.get_yaxis_transform(), color='green', ha='left', va='center')
+        ax.text(1.01, 0.58, '100', transform=ax.get_yaxis_transform(), color='orange', ha='left', va='center')
+        ax.text(1.01, 0.29, '50', transform=ax.get_yaxis_transform(), color='red', ha='left', va='center')
+
     # Add x-axis label
     paraxes.fig.text(0.5, 0.04, 'Supply per capita [l/day/person]', ha='center', va='center', fontsize="large")
 
