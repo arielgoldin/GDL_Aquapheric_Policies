@@ -15,7 +15,7 @@ from AMG_drought_indicator import get_drought_state
 
 # Set the layout to wide
 st.set_page_config(layout="wide")
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Custom CSS to make the app wider
 st.markdown(
