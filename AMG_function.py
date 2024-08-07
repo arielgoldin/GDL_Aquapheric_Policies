@@ -240,6 +240,10 @@ def AMG_model_function_int(
     
     '''for val in all_model_outputs_dict.keys():
         all_model_outputs_dict[val] = np.round(all_model_outputs_dict[val],3)'''
+    
+    # Add model outputs for transparency if necesary **all_model_outputs_dict,
 
     return {**all_model_outputs_dict, **all_outcomes_dict} #, **{"scenario":scenario}}
+
+
 

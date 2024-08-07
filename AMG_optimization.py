@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
-from platypus import EpsNSGAII, ProcessPoolEvaluator
 from functions_data import full_dataframe, find_compromise
-from ema_workbench import (Model, RealParameter, ScalarOutcome,
-                           MultiprocessingEvaluator, ema_logging,
-                           Scenario, Constraint, optimize, IntegerParameter)
+from ema_workbench import Model, RealParameter, ScalarOutcome,MultiprocessingEvaluator, ema_logging, Scenario, Constraint, optimize, IntegerParameter
 from AMG_function import AMG_model_function, AMG_model_function_int
 import random
 import time

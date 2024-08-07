@@ -3,16 +3,14 @@ import seaborn as sns
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib import colormaps, cm
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from pandas.plotting import parallel_coordinates
 from ema_workbench.analysis import parcoords
-import matplotlib.pyplot as plt
- 
-figsize = (11,6)
+
+figsize = (11, 6)
 fontsize = 14
 fig_dir = 'temp_figs/'
 
@@ -52,6 +50,17 @@ def visualize_best_policies(best_policies_df, objectives_dict):
                 best_performance_columns.append(f"{obj}_max")
             best_performance_columns.append(f"{obj}_compromise")
 
+    # Print the columns expected for performance
+    print("Expected best performance columns:", best_performance_columns)
+
+    # Print the columns present in the DataFrame
+    print("Columns in best_policies_df:", best_policies_df.columns.tolist())
+
+    # Check if the best_performance_columns exist in the DataFrame
+    missing_columns = [col for col in best_performance_columns if col not in best_policies_df.columns]
+    if missing_columns:
+        raise ValueError(f"Columns {missing_columns} are missing from the DataFrame.")
+
     # Create a dictionary for labeling the policies
     policy_labels = {
         f"{obj}_min": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_min
@@ -76,17 +85,18 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     # Create a dictionary to map index to labels
     index_labels = {}
     for col, label in policy_labels.items():
-        indices = best_performing_policies_df[best_performing_policies_df[col] == True].index
-        for idx in indices:
-            if idx in index_labels:
-                index_labels[idx] += f", {label}"
-            else:
-                index_labels[idx] = label
+        if col in best_performing_policies_df.columns:
+            indices = best_performing_policies_df[best_performing_policies_df[col] == True].index
+            for idx in indices:
+                if idx in index_labels:
+                    index_labels[idx] += f", {label}"
+                else:
+                    index_labels[idx] = label
 
     # Add a new column for policy labels
     best_performing_policies_df['policy_labels'] = best_performing_policies_df.index.map(index_labels)
 
-    # Select the supply per capita columns for the five zones of analysis (ZA)
+    # Select the supply_per_capita columns for the five zones of analysis (ZA)
     supply_per_capita_columns = [
         'supply_percapita_PP1', 'supply_percapita_PP2', 'supply_percapita_PP3',
         'supply_percapita_Toluquilla', 'supply_percapita_Pozos'
@@ -111,7 +121,18 @@ def visualize_best_policies(best_policies_df, objectives_dict):
             paraxes.plot(row.to_frame().T, label=label, color='#00A6D6', linewidth=4)
         else:
             color = 'darkgrey' if 'No policy' in label else colors[i % len(colors)]
-            paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=4)
+            paraxes.plot(row.to_frame().T, label=label, color=color, linewidth=2)
+
+    # Add horizontal lines for specific values
+    for ax in paraxes.axes:
+        ax.axhline(y=0.86, color='green', linestyle='--', linewidth=1)
+        ax.axhline(y=0.58, color='orange', linestyle='--', linewidth=1)
+        ax.axhline(y=0.29, color='red', linestyle='--', linewidth=1)
+
+        # Add labels to the horizontal lines
+        ax.text(1.01, 0.86, '147', transform=ax.get_yaxis_transform(), color='green', ha='left', va='center')
+        ax.text(1.01, 0.58, '100', transform=ax.get_yaxis_transform(), color='orange', ha='left', va='center')
+        ax.text(1.01, 0.29, '50', transform=ax.get_yaxis_transform(), color='red', ha='left', va='center')
 
     # Add x-axis label
     paraxes.fig.text(0.5, 0.04, 'Supply per capita [l/day/person]', ha='center', va='center', fontsize="large")
@@ -126,8 +147,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     plt.show()
     
     return best_performing_policies_df.index.tolist(), best_performing_policies_df['policy_labels']
-
-
 
 
 

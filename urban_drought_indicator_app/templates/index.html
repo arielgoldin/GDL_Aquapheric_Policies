@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Water Scarcity Indicator</title>
+    <style>
+        .slider {
+            width: 300px;
+        }
+        .slider-value {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drought State Predictor</h1>
+    <form method="post">
+        <label for="chapala_flow">Chapala Flow:</label>
+        <input type="range" id="chapala_flow" name="chapala_flow" min="0" max="11.4" step="0.1" value="{{ scenario['chapala_flow'] if scenario else 6.9 }}" class="slider" oninput="updateValue('chapala_flow')">
+        <span id="chapala_flow_value" class="slider-value">{{ scenario['chapala_flow'] if scenario else 6.9 }} m³/s</span><br><br>
+        
+        <label for="calderon_lared_flow">Calderon La Red Flow:</label>
+        <input type="range" id="calderon_lared_flow" name="calderon_lared_flow" min="0" max="4.5" step="0.1" value="{{ scenario['calderon_lared_flow'] if scenario else 1 }}" class="slider" oninput="updateValue('calderon_lared_flow')">
+        <span id="calderon_lared_flow_value" class="slider-value">{{ scenario['calderon_lared_flow'] if scenario else 1 }} m³/s</span><br><br>
+        
+        <label for="pozos_flow">Pozos Flow:</label>
+        <input type="range" id="pozos_flow" name="pozos_flow" min="0" max="4.8" step="0.1" value="{{ scenario['pozos_flow'] if scenario else 2.3 }}" class="slider" oninput="updateValue('pozos_flow')">
+        <span id="pozos_flow_value" class="slider-value">{{ scenario['pozos_flow'] if scenario else 2.3 }} m³/s</span><br><br>
+        
+        <label for="toluquilla_flow">Toluquilla Flow:</label>
+        <input type="range" id="toluquilla_flow" name="toluquilla_flow" min="0" max="1.5" step="0.1" value="{{ scenario['toluquilla_flow'] if scenario else 0.5 }}" class="slider" oninput="updateValue('toluquilla_flow')">
+        <span id="toluquilla_flow_value" class="slider-value">{{ scenario['toluquilla_flow'] if scenario else 0.5 }} m³/s</span><br><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if results %}
+        <h2>Results</h2>
+        <ul>
+        {% for threshold, likelihood in results %}
+            <li>The likelihood that at least one ZA will fall below <b>{{ threshold }}</b> l/day/person under this scenario is: <b>{{ likelihood|round(2) }}</b></li>
+        {% endfor %}
+        </ul>
+        <h2>Drought State</h2>
+        <p>Thus, the current drought state is considered <b>{{ drought_state }}</b></p>
+    {% endif %}
+
+    <script>
+        function updateValue(sliderId) {
+            var slider = document.getElementById(sliderId);
+            var output = document.getElementById(sliderId + '_value');
+            output.innerHTML = slider.value + ' m³/s';
+        }
+    </script>
+</body>
+</html>
+
