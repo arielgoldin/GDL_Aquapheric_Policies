@@ -195,7 +195,8 @@ def find_best_policies(df, objectives_min, objectives_max, compromise_objectives
 
 def find_minmax_values(full_df, 
                        objectives_max=['supplied_demand_PP1', 'supplied_demand_PP2', 'supplied_demand_PP3',
-                                       'supplied_demand_Toluquilla', 'supplied_demand_Pozos',"supply_percapita_average"],
+                                       'supplied_demand_Toluquilla', 'supplied_demand_Pozos',"supply_percapita_average", 
+                                       "supply_percapita_PP1", "supply_percapita_PP2", "supply_percapita_PP3", "supply_percapita_Toluquilla", "supply_percapita_Pozos"],
                        objectives_min = ['supplied_demand_deficit_PP1',
                                           'supplied_demand_deficit_PP2', 'supplied_demand_deficit_PP3',
                                           'supplied_demand_deficit_Toluquilla', 'supplied_demand_deficit_Pozos',
@@ -220,7 +221,7 @@ def find_minmax_values(full_df,
               # Create DataFrame for max values
               max_values = group[objectives_max].max().to_frame().T
 
-              compromise_pol = find_compromise(group[compromise_objectives], 100)
+              compromise_pol = find_compromise(group[compromise_objectives])
 
 
               # Combine both DataFrames

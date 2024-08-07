@@ -102,7 +102,7 @@ def AMG_model_function(
     # Calculate justice objectives
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
-    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))
+    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))/147 #normalizing objective in relation to 'average' conditions
     #average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
@@ -213,8 +213,7 @@ def AMG_model_function_int(
     # Calculate justice objectives
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
-    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))
-    #average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
+    supply_percapita_average = np.average(list(supply_percapita_outcomes.values())) /147 # To normalize objective for optimization by dividing by the average under normal conditions
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
 
