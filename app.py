@@ -74,7 +74,7 @@ if st.sidebar.button('Load and Visualize'):
     plt.close('all')
 
     # Load the corresponding CSV file for the selected scenario
-    csv_file_path = f"results/optimization_results_sd1ep0.04nfe20000.csv"
+    csv_file_path = f"results/optimization_results_sd1ep0.04nfe50000.csv"
     full_optimization_results = pd.read_csv(csv_file_path, index_col="policy")
     full_optimization_results = full_optimization_results.loc[full_optimization_results["experiment_name"] == "Sup. Dem. Deficit, Energy & Sup. PerCap. GINI"]
     full_optimization_results = full_optimization_results.loc[full_optimization_results["scenario"] == scenario_name]
