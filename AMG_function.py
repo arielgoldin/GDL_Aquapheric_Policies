@@ -28,7 +28,7 @@ def AMG_model_function(
     aqp4_Toluquilla_to_PP1, aqp1_PP2_to_PP3, aqp2_PP3_to_Pozos, aqp3_Pozos_to_Toluquilla,
     crowding_factor=3.55, 
     chapalaPP1_to_chapalaPP2=0.19, loss_grid=0.35, loss_potabilisation=0.07,
-    rounding_outcomes=2, rounding_levers=3, sufficientarian_thresholds=[142, 100, 50, 128],
+    rounding_outcomes=2, rounding_levers=3, sufficientarian_thresholds=[142, 100, 50],
     scenario="unspecified", experiment_name = "unspecified"):
 
     ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
@@ -73,7 +73,7 @@ def AMG_model_function(
         "additional_flow_Pozos": potabilized_outputs["potabilized_Pozos"] * -0.22
     }
     #Two following lines of codes are from the implementation with integre levers
-    #scale = 10**(-rounding_levers) 
+
     aqp_flows = [aqp1_PP2_to_PP3, aqp2_PP3_to_Pozos, aqp3_Pozos_to_Toluquilla, aqp4_Toluquilla_to_PP1]
     aqp_flow_PP1 = aqp4_Toluquilla_to_PP1
     aqp_flow_PP2 = -aqp1_PP2_to_PP3
@@ -102,7 +102,7 @@ def AMG_model_function(
     # Calculate justice objectives
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
-    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))/147 #normalizing objective in relation to 'average' conditions
+    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))/147
     #average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
@@ -126,7 +126,7 @@ def AMG_model_function(
     '''for val in all_outcomes_dict.keys():
         all_outcomes_dict[val] = np.round(all_outcomes_dict[val], rounding_outcomes)'''
 
-    all_model_outputs_dict = {**delivered_outputs, **model_outputs}
+    all_model_outputs_dict = {**model_outputs} # Can add **delivered_outputs, for trasability and transparency
     
     '''for val in all_model_outputs_dict.keys():
         all_model_outputs_dict[val] = np.round(all_model_outputs_dict[val],3)'''
@@ -213,7 +213,7 @@ def AMG_model_function_int(
     # Calculate justice objectives
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
-    supply_percapita_average = np.average(list(supply_percapita_outcomes.values())) /147 # To normalize objective for optimization by dividing by the average under normal conditions
+    supply_percapita_average = np.average(list(supply_percapita_outcomes.values())) /142 # To normalize objective for optimization by dividing by the average under normal conditions
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
 
@@ -240,10 +240,6 @@ def AMG_model_function_int(
     
     '''for val in all_model_outputs_dict.keys():
         all_model_outputs_dict[val] = np.round(all_model_outputs_dict[val],3)'''
-    
-    # Add model outputs for transparency if necesary **all_model_outputs_dict,
 
     return {**all_model_outputs_dict, **all_outcomes_dict} #, **{"scenario":scenario}}
-
-
 

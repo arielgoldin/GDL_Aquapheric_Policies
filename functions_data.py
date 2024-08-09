@@ -204,7 +204,7 @@ def find_minmax_values(full_df,
                                           "supplied_demand_GINI","supply_percapita_GINI",
                                           'ZAs_below_142','ZAs_below_100', 'ZAs_below_50',
                                           "energy_costs"],
-                       compromise_objectives = ["energy_costs","supply_percapita_GINI",]):
+                       compromise_objectives = ["energy_costs","supply_percapita_average",]):
        
        ''' Finds the maximum or minimum value for each objective for each formulation'''
        
