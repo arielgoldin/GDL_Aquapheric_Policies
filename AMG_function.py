@@ -1,6 +1,13 @@
 import numpy as np
 import pandas as pd
 
+'''
+This docuemtn includes the model of water distribution of Guadalajara developed for this thesis. 
+This model is a python implementation of a model developed by Resilient Cities Network as part of 
+the development of the City Water Resilience Agenda in 2022. The data used in this model is from 2020.
+
+'''
+
 
 conversion_m3s = 1/(24*60*60*1000) # converts l/day into m3/s
 
