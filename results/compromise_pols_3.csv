@@ -1,0 +1,10 @@
+policy,supply_percapita_GINI,supplied_demand_deficit_PP1,formulation,objectives,scenario
+3179,0.047631169,0.021246779,A-posteriori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",2021_drought
+1964,0.051699668,0.001122212,Mixed,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",2021_drought
+381,0.040905846,0.029822265,A-priori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",2021_drought
+7145,0.1781676742439863,0.7142199800182413,A-posteriori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",chapala_incident
+5432,0.1822824215649053,0.7034662261760347,Mixed,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",chapala_incident
+983,0.1774456943944501,0.7138543265870513,A-priori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",chapala_incident
+12948,0.0959379221034256,0.1050089477227715,A-posteriori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",groundwater_scarcity
+6572,0.0918199644822098,0.1134132274259572,Mixed,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",groundwater_scarcity
+3455,0.0956131675680433,0.1088010949115322,A-priori,"['supply_percapita_GINI', 'supplied_demand_deficit_PP1']",groundwater_scarcity

@@ -1,0 +1,10 @@
+policy,energy_costs,supply_percapita_GINI,formulation,objectives,scenario
+3179,0.329354664,0.047631169,A-posteriori,"['energy_costs', 'supply_percapita_GINI']",2021_drought
+2438,0.188454089,0.065716479,Mixed,"['energy_costs', 'supply_percapita_GINI']",2021_drought
+1256,0.193629846,0.070363744,A-priori,"['energy_costs', 'supply_percapita_GINI']",2021_drought
+7963,0.1511519578474164,0.184136763465474,A-posteriori,"['energy_costs', 'supply_percapita_GINI']",chapala_incident
+4145,0.1722486649597532,0.175707881408035,Mixed,"['energy_costs', 'supply_percapita_GINI']",chapala_incident
+3325,0.1570973285753639,0.1803752716360531,A-priori,"['energy_costs', 'supply_percapita_GINI']",chapala_incident
+15041,0.1821852597483181,0.1042154926010522,A-posteriori,"['energy_costs', 'supply_percapita_GINI']",groundwater_scarcity
+6020,0.1365292234305187,0.1189252615177503,Mixed,"['energy_costs', 'supply_percapita_GINI']",groundwater_scarcity
+5643,0.1650249327008768,0.1059507175269577,A-priori,"['energy_costs', 'supply_percapita_GINI']",groundwater_scarcity

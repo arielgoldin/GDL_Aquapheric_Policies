@@ -163,6 +163,8 @@ def find_compromise(refSet):
 
     Returns:
     int: The index of the compromise solution (the policy that is closest to the ideal point across all objectives).
+
+    Source: Adapted from Jazmin Zatarain Salazar
     '''
 
     objectives_min = ['supplied_demand_deficit_PP1',
@@ -299,6 +301,8 @@ def find_minmax_values(full_df,
        min_max_df = pd.DataFrame()
 
        for name, group in grouped:
+              
+              group.set_index("policy",inplace=True)
 
               # Create DataFrame for min values
               min_values = group[objectives_min].min().to_frame().T
@@ -313,7 +317,7 @@ def find_minmax_values(full_df,
               combined_df = pd.concat([min_values, max_values], axis=1)
 
               for objective in compromise_objectives:
-                     combined_df[f"comp_{objective}"]= full_df[objective][compromise_pol]
+                     combined_df[f"comp_{objective}"]= group.loc[compromise_pol,objective]
 
               combined_df["formulation"]=name
 

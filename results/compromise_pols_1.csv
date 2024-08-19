@@ -1,0 +1,10 @@
+policy,energy_costs,supply_percapita_average,formulation,objectives,scenario
+3416,0.390185597,136.4771849,A-posteriori,"['energy_costs', 'supply_percapita_average']",2021_drought
+2327,0.207607977,133.4407809,Mixed,"['energy_costs', 'supply_percapita_average']",2021_drought
+665,0.179757249,132.7131895,A-priori,"['energy_costs', 'supply_percapita_average']",2021_drought
+8063,0.1684704984371422,98.51715769697906,A-posteriori,"['energy_costs', 'supply_percapita_average']",chapala_incident
+4714,0.2091304820364889,99.79571853108467,Mixed,"['energy_costs', 'supply_percapita_average']",chapala_incident
+1911,0.1960901746783697,99.51602710046184,A-priori,"['energy_costs', 'supply_percapita_average']",chapala_incident
+14716,0.1295748741362682,113.59352803838212,A-posteriori,"['energy_costs', 'supply_percapita_average']",groundwater_scarcity
+8262,0.1847921266054852,117.25470366374418,Mixed,"['energy_costs', 'supply_percapita_average']",groundwater_scarcity
+2169,0.1396540530323374,114.94697267390134,A-priori,"['energy_costs', 'supply_percapita_average']",groundwater_scarcity

@@ -2,6 +2,10 @@ import statsmodels.api as sm
 import numpy as np
 import pandas as pd
 
+'''
+This document contains the functions necesary for the app that was used to test the Urban Drought Indicator
+'''
+
 # Dictionary to store logistic regression results for different thresholds
 log_reg_results = {}
 dataframes = {}
