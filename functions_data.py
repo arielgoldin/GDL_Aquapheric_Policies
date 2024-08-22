@@ -196,16 +196,12 @@ def find_compromise(refSet):
             if refSet.columns[j] in objectives_max:
                 normObjs[i, j] = (-refSet.iloc[i, j] + refSet.iloc[:, j].mean()) / refSet.iloc[:, j].std()
             elif refSet.columns[j] in objectives_min:
-                normObjs[i, j] = (refSet.iloc[i, j] - refSet.iloc[:, j].mean()) / refSet.iloc[:, j].std()
+                normObjs[i, j] = (-refSet.iloc[:, j].mean() + refSet.iloc[i, j]) / refSet.iloc[:, j].std()
 
     dists = np.zeros(refSet.shape[0])
     for i in range(len(dists)):
         for j in range(nobjs):
             dists[i] += (normObjs[i, j] - np.min(normObjs[:, j])) ** 2
-
-    # Check if dists is not empty before using argmin
-    if len(dists) == 0:
-        raise ValueError("Distance array is empty. Check if the refSet is populated correctly.")
 
     compromise = np.argmin(dists)
     return compromise
