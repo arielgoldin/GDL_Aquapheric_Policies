@@ -4,23 +4,6 @@ import numpy as np
 
 
 def full_dataframe(df, scenarios_in_dataframe, function=AMG_model_function, experiment_name="", scenario={}, folder="experiment_results"):
-    '''
-    This function generates a comprehensive DataFrame by applying a specified function (default: AMG_model_function) to each row 
-    of an input DataFrame, which contains scenario data and aquifer operation policies. The function iterates over the rows, applies 
-    the specified function to simulate the outcomes of these policies, and appends the results to the original data.
-
-    Parameters:
-    df (pd.DataFrame): Input DataFrame containing aquifer operation policies and scenario data.
-    scenarios_in_dataframe (bool): Flag indicating if scenario data is included within the input DataFrame. If True, scenario data 
-                                   will be extracted from the DataFrame; otherwise, it will be taken from the provided scenario dict.
-    function (function): The function to be applied to each row of the input DataFrame to simulate outcomes (default: AMG_model_function).
-    experiment_name (str): Name of the experiment, used for labeling and saving the output DataFrame (default: empty string).
-    scenario (dict): Dictionary containing scenario data to be passed to the function if scenarios_in_dataframe is False (default: empty dict).
-    folder (str): Directory path to save the output DataFrame (default: "experiment_results").
-
-    Returns:
-    results_df (pd.DataFrame): A DataFrame containing the original policies/scenario data concatenated with the results from the simulation function.
-    '''
     
     # Define the names of the columns that could be used as arguments for the function
     aqp_segments = ["aqp4_Toluquilla_to_PP1", "aqp1_PP2_to_PP3", "aqp2_PP3_to_Pozos", "aqp3_Pozos_to_Toluquilla"]
@@ -70,21 +53,6 @@ def full_dataframe(df, scenarios_in_dataframe, function=AMG_model_function, expe
 
 
 def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
-    '''
-    This function filters and identifies the best policies from a DataFrame based on specified objectives. It marks the best policies
-    according to the selected objectives (minimizing or maximizing specific metrics) and adds a "No Policy" scenario as a baseline 
-    for comparison.
-
-    Parameters:
-    df (pd.DataFrame): Input DataFrame containing various policies and their corresponding metrics.
-    objectives_dict (dict): A dictionary where keys are objective names and values are booleans indicating whether to include the objective in the filtering.
-    scenario (dict): A dictionary containing the scenario data (e.g., flows) to simulate the "No Policy" scenario.
-
-    Returns:
-    pd.DataFrame: A DataFrame with additional columns indicating the best-performing policies based on the selected objectives and the 
-                  compromise solution. Includes a "No Policy" scenario for baseline comparison.
-    '''
-
     df_copy = df.copy()  # To avoid modifying the original DataFrame
 
     objectives_min = ['supplied_demand_deficit_PP1',
@@ -149,23 +117,6 @@ def find_best_policies_for_specified_objectives(df, objectives_dict, scenario):
 
 
 def find_compromise(refSet):
-    '''
-    This function identifies the compromise solution from a set of policy objectives. The compromise solution is the one that 
-    balances the trade-offs between the objectives, minimizing the overall distance from the ideal performance across all objectives.
-
-    The function considers two types of objectives: those to be minimized and those to be maximized. It normalizes the objectives 
-    and calculates the Euclidean distance of each policy from the ideal point, selecting the one closest to it as the compromise 
-    solution.
-
-    Parameters:
-    refSet (pd.DataFrame): A DataFrame containing the performance metrics of different policies across various objectives. Each 
-                           column represents an objective, and each row represents a policy.
-
-    Returns:
-    int: The index of the compromise solution (the policy that is closest to the ideal point across all objectives).
-
-    Source: Adapted from Jazmin Zatarain Salazar
-    '''
 
     objectives_min = ['supplied_demand_deficit_PP1',
                       'supplied_demand_deficit_PP2', 
@@ -209,43 +160,6 @@ def find_compromise(refSet):
 
 
 def find_best_policies(df, objectives_min, objectives_max, compromise_objectives):
-    """
-    Identifies the best-performing policies within a DataFrame of optimization results, 
-    including policies that are optimal for specific objectives (minimization or maximization) 
-    as well as a compromise solution that balances multiple objectives.
-
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        The DataFrame containing policy performance metrics across multiple objectives. 
-        Each row represents a policy and each column represents an objective or a performance measure.
-
-    objectives_min : list of str
-        A list of column names corresponding to objectives that should be minimized.
-
-    objectives_max : list of str
-        A list of column names corresponding to objectives that should be maximized.
-
-    compromise_objectives : list of str
-        A list of column names corresponding to objectives that should be considered for finding 
-        a compromise solution, which balances trade-offs among these objectives.
-
-    Returns:
-    --------
-    pd.DataFrame
-        A DataFrame similar to the input, but with additional boolean columns indicating whether a 
-        policy is optimal for each specified objective or is the compromise solution. These columns 
-        have the suffixes '_min', '_max', and '_compromise' for minimization, maximization, and 
-        compromise objectives respectively.
-        
-    Notes:
-    ------
-    - The function works by grouping the DataFrame based on the 'experiment_name' column, 
-    allowing the identification of best policies within each experiment.
-    - The compromise solution is found within each group of policies by considering the 
-    specified compromise objectives, using the `find_compromise` function.
-    """
-    
     df_copy = df.copy()  # To avoid modifying the original DataFrame
     
     # Group the DataFrame by 'experiment_name'
@@ -301,8 +215,6 @@ def find_minmax_values(full_df,
        min_max_df = pd.DataFrame()
 
        for name, group in grouped:
-              
-              group.set_index("policy",inplace=True)
 
               # Create DataFrame for min values
               min_values = group[objectives_min].min().to_frame().T
@@ -317,7 +229,7 @@ def find_minmax_values(full_df,
               combined_df = pd.concat([min_values, max_values], axis=1)
 
               for objective in compromise_objectives:
-                     combined_df[f"comp_{objective}"]= group.loc[compromise_pol,objective]
+                     combined_df[f"comp_{objective}"]= full_df[objective][compromise_pol]
 
               combined_df["formulation"]=name
 
