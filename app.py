@@ -103,6 +103,8 @@ if st.sidebar.button('Load and Visualize'):
     best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns]
     best_policies_aqp_flows['policy_labels'] = policy_labels
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
+    best_policies_aqp_flows = best_policies_aqp_flows.round(2)
+    
     st.dataframe(best_policies_aqp_flows)
 
 
