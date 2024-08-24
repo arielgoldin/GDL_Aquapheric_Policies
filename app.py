@@ -76,7 +76,7 @@ if st.sidebar.button('Load and Visualize'):
     # Load the corresponding CSV file for the selected scenario
     csv_file_path = "results/optimization_results_sd1ep0.04nfe50000.csv"
     full_optimization_results = pd.read_csv(csv_file_path, index_col="policy")
-    full_optimization_results = full_optimization_results.loc[full_optimization_results["experiment_name"] == "Sup. Dem. Deficit, Sup. Percap. GINI & Energy"]
+    full_optimization_results = full_optimization_results.loc[full_optimization_results["experiment_name"] == "Mixed"]
     full_optimization_results = full_optimization_results.loc[full_optimization_results["scenario"] == scenario_name]
 
     # Extract the scenario details from the dataframe
