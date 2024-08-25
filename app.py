@@ -102,12 +102,27 @@ if st.sidebar.button('Load and Visualize'):
     additional_columns = ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']
     best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns].round(2)
     
-    # Round the values to two decimal places
-    best_policies_aqp_flows = best_policies_aqp_flows.round(2)
+    # Define a dictionary specifying the number of decimal places for each column
+    rounding_dict = {
+        'aqp1_PP2_to_PP3': 2,
+        'aqp2_PP3_to_Pozos': 2,
+        'aqp3_Pozos_to_Toluquilla': 2,
+        'aqp4_Toluquilla_to_PP1': 2,
+        'supply_percapita_GINI': 2,
+        'energy_costs': 2,
+        'supply_percapita_average': 0
+    }
 
+    # Apply the rounding to each column according to the rounding_dict
+    for col, decimals in rounding_dict.items():
+        if col in best_policies_aqp_flows.columns:
+            best_policies_aqp_flows[col] = best_policies_aqp_flows[col].round(decimals)
+
+    # Add policy labels and set the index
     best_policies_aqp_flows['policy_labels'] = policy_labels
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
-    st.dataframe(best_policies_aqp_flows)
 
+    # Display the DataFrame
+    st.dataframe(best_policies_aqp_flows)
 
 
