@@ -15,7 +15,7 @@ from AMG_drought_indicator import get_drought_state
 
 # Set the layout to wide
 st.set_page_config(layout="wide")
-#st.set_option('deprecation.showPyplotGlobalUse', False)
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Custom CSS to make the app wider
 st.markdown(
@@ -100,7 +100,13 @@ if st.sidebar.button('Load and Visualize'):
     st.header('AqP Flows for Best Performing Policies')
     aqp_flows = ['aqp1_PP2_to_PP3', 'aqp2_PP3_to_Pozos', 'aqp3_Pozos_to_Toluquilla', 'aqp4_Toluquilla_to_PP1']
     additional_columns = ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']
-    best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns].round(2)
+    best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns]
+
+    # Convert all columns to numeric where possible, filling in NaNs where conversion fails
+    best_policies_aqp_flows = best_policies_aqp_flows.apply(pd.to_numeric, errors='coerce')
+
+    # Check for any non-numeric columns and fill NaNs with a placeholder if necessary
+    best_policies_aqp_flows = best_policies_aqp_flows.fillna(0)
     
     # Define a dictionary specifying the number of decimal places for each column
     rounding_dict = {
@@ -118,11 +124,15 @@ if st.sidebar.button('Load and Visualize'):
         if col in best_policies_aqp_flows.columns:
             best_policies_aqp_flows[col] = best_policies_aqp_flows[col].round(decimals)
 
-    # Add policy labels and set the index
-    best_policies_aqp_flows['policy_labels'] = policy_labels
+    # Replace underscores with spaces in the column names
+    best_policies_aqp_flows.columns = best_policies_aqp_flows.columns.str.replace('_', ' ')
+
+    # Modify policy labels by replacing underscores with spaces
+    best_policies_aqp_flows['policy_labels'] = [label.replace('_', ' ') for label in policy_labels]
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
 
     # Display the DataFrame
     st.dataframe(best_policies_aqp_flows)
+
 
 
