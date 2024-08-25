@@ -15,7 +15,7 @@ from AMG_drought_indicator import get_drought_state
 
 # Set the layout to wide
 st.set_page_config(layout="wide")
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Custom CSS to make the app wider
 st.markdown(
@@ -128,8 +128,8 @@ if st.sidebar.button('Load and Visualize'):
     best_policies_aqp_flows.columns = best_policies_aqp_flows.columns.str.replace('_', ' ')
 
     # Modify policy labels by replacing underscores with spaces
-    best_policies_aqp_flows['policy_labels'] = [label.replace('_', ' ') for label in policy_labels]
-    best_policies_aqp_flows.set_index('policy_labels', inplace=True)
+    best_policies_aqp_flows['Policy'] = [label.replace('_', ' ') for label in policy_labels]
+    best_policies_aqp_flows.set_index('Policy', inplace=True)
 
     # Display the DataFrame
     st.dataframe(best_policies_aqp_flows)
