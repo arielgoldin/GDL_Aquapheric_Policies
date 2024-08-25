@@ -109,7 +109,8 @@ def AMG_model_function(
     # Calculate justice objectives
     min_supplied_demand = min(supplied_demand_outcomes.values())
     supplied_demand_average = np.average(list(supplied_demand_outcomes.values()))
-    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))/147
+    supply_percapita_average = np.average(list(supply_percapita_outcomes.values()))
+    supply_percapita_average_norm = np.average(list(supply_percapita_outcomes.values()))/147
     #average_supply_percapita = np.sum([supply_percapita_outcomes[f"supply_percapita_{ZA}"] * population_dict[f"population_{ZA}"] for ZA in ZA_names]) // np.sum(list(population_dict.values()))
     supply_percapita_GINI = calculate_GINI(supply_percapita_outcomes)
     supplied_demand_GINI = calculate_GINI(supplied_demand_outcomes)
@@ -125,6 +126,7 @@ def AMG_model_function(
         "supply_percapita_GINI": supply_percapita_GINI,
         "supplied_demand_GINI": supplied_demand_GINI,
         "energy_costs": energy_cost_fraction,
+        "supply_percapita_average_norm": supply_percapita_average_norm,
         **ZAs_below_threshold
     }
 
