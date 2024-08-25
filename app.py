@@ -101,10 +101,12 @@ if st.sidebar.button('Load and Visualize'):
     aqp_flows = ['aqp1_PP2_to_PP3', 'aqp2_PP3_to_Pozos', 'aqp3_Pozos_to_Toluquilla', 'aqp4_Toluquilla_to_PP1']
     additional_columns = ['supply_percapita_GINI', 'energy_costs', 'supply_percapita_average']
     best_policies_aqp_flows = best_policies_df.loc[best_policy_indices, aqp_flows + additional_columns]
+    
+    # Round the values to two decimal places
+    best_policies_aqp_flows = best_policies_aqp_flows.round(2)
+
     best_policies_aqp_flows['policy_labels'] = policy_labels
     best_policies_aqp_flows.set_index('policy_labels', inplace=True)
-    best_policies_aqp_flows = best_policies_aqp_flows.round(2)
-    
     st.dataframe(best_policies_aqp_flows)
 
 

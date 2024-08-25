@@ -79,7 +79,7 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
 
     # Debugging: print the best_performing_policies_df to check if it's populated correctly
-    print("Best Performing Policies DataFrame:")
+    print("Best Performing Policies:")
     print(best_performing_policies_df)
 
     # Create a dictionary to map index to labels
