@@ -69,7 +69,7 @@ def visualize_best_policies(best_policies_df, objectives_dict):
         f"{obj}_max": f"Best {objective_labels[obj]}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_max
     })
     policy_labels.update({
-        f"{obj}_compromise": f"Compromise policy}" for obj in objectives_dict.keys() if objectives_dict[obj]
+        f"{obj}_compromise": f"Compromise policy" for obj in objectives_dict.keys() if objectives_dict[obj]
     })
     policy_labels.update({
         "no_policy": "No policy"

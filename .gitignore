@@ -7,3 +7,5 @@ temp/
 apps
 
 __pycache__/
+*.pyc
+*.pyc
