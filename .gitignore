@@ -5,3 +5,5 @@
 temp/
 
 apps
+
+__pycache__/

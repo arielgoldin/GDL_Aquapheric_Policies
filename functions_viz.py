@@ -15,29 +15,35 @@ fontsize = 14
 fig_dir = 'temp_figs/'
 
 def visualize_best_policies(best_policies_df, objectives_dict):
-    ZA_names = ["PP1", "PP2", "PP3", "Toluquilla", "Pozos"]
+    # Map the objectives to more accessible names
+    objective_labels = {
+        'supplied_demand_GINI': 'Egalitarian - Supplied Demand',
+        'supply_percapita_GINI': 'Egalitarian - Supply Per capita',
+        'supply_percapita_average': 'Utilitarian - Supply Per Capita Average',
+        'energy_costs': 'Energy Costs Efficiency',
+        'supplied_demand_deficit_PP1': 'Prioritize PP1',
+        'supplied_demand_deficit_PP2': 'Prioritize PP2',
+        'supplied_demand_deficit_PP3': 'Prioritize PP3',
+        'supplied_demand_deficit_Toluquilla': 'Prioritize Toluquilla',
+        'supplied_demand_deficit_Pozos': 'Prioritize Pozos'
+    }
 
     # Identify the columns that indicate best performance (ending in '_min', '_max', or '_compromise')
-    objectives_min = ['supplied_demand_deficit_PP1',
-                      'supplied_demand_deficit_PP2', 
-                      'supplied_demand_deficit_PP3',
-                      'supplied_demand_deficit_Toluquilla', 
-                      'supplied_demand_deficit_Pozos',
-                      "supplied_demand_GINI",
-                      "supply_percapita_GINI",
-                      "energy_costs"]
+    objectives_min = [
+        'supplied_demand_deficit_PP1', 'supplied_demand_deficit_PP2', 
+        'supplied_demand_deficit_PP3', 'supplied_demand_deficit_Toluquilla', 
+        'supplied_demand_deficit_Pozos', "supplied_demand_GINI", 
+        "supply_percapita_GINI", "energy_costs"
+    ]
 
-    objectives_max = ['supplied_demand_PP1', 
-                      'supplied_demand_PP2', 
-                      'supplied_demand_PP3',
-                      'supplied_demand_Toluquilla', 
-                      'supplied_demand_Pozos',
-                      'supply_percapita_PP1', 
-                      'supply_percapita_PP2', 
-                      'supply_percapita_PP3',
-                      'supply_percapita_Toluquilla', 
-                      'supply_percapita_Pozos', 
-                      "supply_percapita_average"]
+    objectives_max = [
+        'supplied_demand_PP1', 'supplied_demand_PP2', 
+        'supplied_demand_PP3', 'supplied_demand_Toluquilla', 
+        'supplied_demand_Pozos', 'supply_percapita_PP1', 
+        'supply_percapita_PP2', 'supply_percapita_PP3', 
+        'supply_percapita_Toluquilla', 'supply_percapita_Pozos', 
+        "supply_percapita_average"
+    ]
     
     # Ensure that the null policy will always be displayed
     best_performance_columns = ["no_policy"]
@@ -50,26 +56,20 @@ def visualize_best_policies(best_policies_df, objectives_dict):
                 best_performance_columns.append(f"{obj}_max")
             best_performance_columns.append(f"{obj}_compromise")
 
-    # Print the columns expected for performance
-    print("Expected best performance columns:", best_performance_columns)
-
-    # Print the columns present in the DataFrame
-    print("Columns in best_policies_df:", best_policies_df.columns.tolist())
-
     # Check if the best_performance_columns exist in the DataFrame
     missing_columns = [col for col in best_performance_columns if col not in best_policies_df.columns]
     if missing_columns:
         raise ValueError(f"Columns {missing_columns} are missing from the DataFrame.")
 
-    # Create a dictionary for labeling the policies
+    # Create a dictionary for labeling the policies using more accessible names
     policy_labels = {
-        f"{obj}_min": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_min
+        f"{obj}_min": f"Best {objective_labels[obj]}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_min
     }
     policy_labels.update({
-        f"{obj}_max": f"Best {obj}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_max
+        f"{obj}_max": f"Best {objective_labels[obj]}" for obj in objectives_dict.keys() if objectives_dict[obj] and obj in objectives_max
     })
     policy_labels.update({
-        f"{obj}_compromise": f"Compromise policy" for obj in objectives_dict.keys() if objectives_dict[obj]
+        f"{obj}_compromise": f"Compromise policy}" for obj in objectives_dict.keys() if objectives_dict[obj]
     })
     policy_labels.update({
         "no_policy": "No policy"
@@ -77,10 +77,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
 
     # Filter rows where at least one of the best performance columns is True
     best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
-
-    # Debugging: print the best_performing_policies_df to check if it's populated correctly
-    print("Best Performing Policies:")
-    print(best_performing_policies_df)
 
     # Create a dictionary to map index to labels
     index_labels = {}
@@ -102,10 +98,6 @@ def visualize_best_policies(best_policies_df, objectives_dict):
         'supply_percapita_Toluquilla', 'supply_percapita_Pozos'
     ]
     data = best_performing_policies_df[supply_per_capita_columns]
-
-    # Debugging: print the data to be plotted
-    print("Data to be plotted:")
-    print(data)
 
     # Get limits for parallel coordinates plot
     limits = pd.read_csv("results/limits.csv")
