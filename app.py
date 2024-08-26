@@ -86,6 +86,10 @@ if st.sidebar.button('Load and Visualize'):
     # Find the best policies
     best_policies_df = find_best_policies_for_specified_objectives(full_optimization_results, objectives_dict, scenario)
 
+    # Filter out the policy with the best energy cost if energy_costs is selected since its the same as the no policy
+    if objectives_dict['energy_costs']:
+        best_policies_df = best_policies_df[best_policies_df['energy_costs_min'] == False]
+
     # Display the drought state
     st.header('Urban Drought Indicator')
     drought_state = get_drought_state(scenario)
@@ -130,6 +134,7 @@ if st.sidebar.button('Load and Visualize'):
     # Modify policy labels by replacing underscores with spaces
     best_policies_aqp_flows['Policy'] = [label.replace('_', ' ') for label in policy_labels]
     best_policies_aqp_flows.set_index('Policy', inplace=True)
+
 
     # Display the DataFrame
     st.dataframe(best_policies_aqp_flows)
