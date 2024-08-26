@@ -71,9 +71,12 @@ def visualize_best_policies(best_policies_df, objectives_dict):
     policy_labels.update({
         f"{obj}_compromise": f"Compromise policy" for obj in objectives_dict.keys() if objectives_dict[obj]
     })
-    policy_labels.update({
-        "no_policy": "No policy"
-    })
+    if objectives_dict["energy_costs"]:
+        policy_labels.update({
+            "no_policy": "No policy/most energy efficient"})
+    else: 
+        policy_labels.update({
+            "no_policy": "No policy"})
 
     # Filter rows where at least one of the best performance columns is True
     best_performing_policies_df = best_policies_df[best_policies_df[best_performance_columns].any(axis=1)]
