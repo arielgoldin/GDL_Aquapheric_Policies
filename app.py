@@ -51,8 +51,8 @@ st.sidebar.write(scenario_descriptions.get(scenario_name, "No description availa
 # Objectives selection
 st.sidebar.header('Select Objectives')
 objectives_dict = {
-    'supplied_demand_GINI': st.sidebar.checkbox('Egalitarian - Supplied Demand', value=False),
     'supply_percapita_GINI': st.sidebar.checkbox('Egalitarian - Supply Per capita', value=False),
+    'supplied_demand_GINI': st.sidebar.checkbox('Egalitarian - Supplied Demand', value=False),
     'supply_percapita_average': st.sidebar.checkbox('Utilitarian - Supply Per Capita Average', value=False),
     'energy_costs': st.sidebar.checkbox('Energy Costs Efficiency', value=False),
     'supplied_demand_deficit_PP1': st.sidebar.checkbox('Prioritize PP1', value=False),
